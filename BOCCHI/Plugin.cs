@@ -21,6 +21,8 @@ using BOCCHI.Services.Repair;
 using Dalamud.Configuration;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
+using Lumina.Excel.Sheets;
 using Microsoft.Extensions.DependencyInjection;
 using Ocelot;
 using Ocelot.Config;
@@ -68,6 +70,8 @@ public sealed class Plugin(IDalamudPluginInterface plugin, IPluginLog logger) : 
 
         services.AddSingleton<TeleportToAethernetChain>();
 
+        services.AddSingleton<DrawCEs>();
+
 
 #if DEBUG
         services.AddSingleton<OpenWindows>();
@@ -95,6 +99,7 @@ public sealed class Plugin(IDalamudPluginInterface plugin, IPluginLog logger) : 
 
     private static void BootstrapConfiguration(IServiceCollection services, IDalamudPluginInterface plugin, IPluginLog logger)
     {
+        Achievement
         var migrator = new ConfigMigrator(plugin, logger);
         if (migrator.ShouldMigrate())
         {

@@ -8,6 +8,7 @@ namespace BOCCHI.CriticalEncounters;
 
 public class CriticalEncountersRenderer(
     ICriticalEncounterRepository criticalEncounters,
+
     IBrandingService branding,
     IUIService ui
 ) : IDynamicRenderer
@@ -17,7 +18,7 @@ public class CriticalEncountersRenderer(
         var snapshot = criticalEncounters.SnapshotWithoutForkedTower();
         foreach (var criticalEncounter in snapshot)
         {
-            ui.Text(criticalEncounter.Id, branding.DalamudYellow);
+            ui.Text(criticalEncounter.Name, branding.DalamudYellow);
             ImGui.Indent(32);
 
             ui.LabelledValue("Id", criticalEncounter.Id);

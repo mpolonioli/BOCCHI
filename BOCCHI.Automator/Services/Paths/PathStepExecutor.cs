@@ -60,3 +60,15 @@ public class PathStepExecutor(
         return manager.Manage(chain);
     }
 }
+
+// I don't remember what this was
+// step.PathStepData switch
+// {
+//     Pathfind(var destination) => chains.Create($"PathStep::Pathfind({destination:f2}")
+//         ...
+//     Teleport(var id) => chains.Create($"PathStep::Teleport({id}")
+//         ...
+//     Return _ => chains.Create($"PathStep::Return")
+//         ...
+//     _ => throw new ArgumentOutOfRangeException(),
+// };

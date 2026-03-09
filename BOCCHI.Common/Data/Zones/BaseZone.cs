@@ -2,6 +2,7 @@
 using BOCCHI.Common.Data.Aethernet;
 using BOCCHI.Common.Data.KnowledgeCrystals;
 using Dalamud.Plugin.Services;
+using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 namespace BOCCHI.Common.Data.Zones;
@@ -47,17 +48,22 @@ public abstract class BaseZone(IObjectTable objects) : IZone
 
     public List<KnowledgeCrystalData> GetNearbyKnowledgeCrystals()
     {
-        return objects
-            .Where(o => o.BaseId == KnowledgeCrystalData.BaseId)
-            .Select(o => new KnowledgeCrystalData
-            {
-                Position = o.Position,
-            })
-            .ToList();
+        return [];
+        // return objects
+        //     .Where(o => o.BaseId == KnowledgeCrystalData.BaseId)
+        //     .Select(o => new KnowledgeCrystalData
+        //     {
+        //         Position = o.Position,
+        //     })
+        //     .ToList();
     }
 
-    public bool IsInForkedTower()
+    protected abstract ushort GetForkedTowerEventId();
+
+    public unsafe bool IsInForkedTower()
     {
-        throw new NotImplementedException();
+        var dec = DynamicEventContainer.GetInstance();
+
+        return dec != null && dec->CurrentEventId == GetForkedTowerEventId();
     }
 }

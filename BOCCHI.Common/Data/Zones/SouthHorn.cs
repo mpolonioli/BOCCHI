@@ -30,6 +30,11 @@ public class SouthHorn(IObjectTable objects) : BaseZone(objects)
         ];
     }
 
+    protected override ushort GetForkedTowerEventId()
+    {
+        return 48;
+    }
+
     private readonly static AethernetData BaseCamp = new()
     {
         Id = 4944,

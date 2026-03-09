@@ -32,9 +32,9 @@ public enum AutomatorState
     // We are currently participating in a fate
     InFate,
     // We are in the CE zone and waiting for it to start
-    // WaitingForCriticalEncounter,
+    WaitingForCriticalEncounter,
     // We are currently participating in a CE
-    // InCriticalEncounter,
+    InCriticalEncounter,
 
     // Returning to the job we originally were based on a memory
     ReturningToJob,

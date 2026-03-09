@@ -55,8 +55,9 @@ public class Automator(
             {
                 memory.Forget<GoalMemory>();
                 memory.Forget<GoalPathStepMemory>();
+                memory.Forget<WaitingForCriticalEncounterMemory>();
             }
-            else if (!memory.TryRemember<GoalPathStepMemory>(out var _))
+            else if (!memory.TryRemember<GoalPathStepMemory>(out var _) && !memory.TryRemember<WaitingForCriticalEncounterMemory>(out var _))
             {
                 memory.TryAdd(new GoalPathStepMemory(goal.Goal, calculator));
             }

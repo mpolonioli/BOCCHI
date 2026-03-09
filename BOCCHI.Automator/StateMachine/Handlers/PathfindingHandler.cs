@@ -22,6 +22,7 @@ using Action = System.Action;
 namespace BOCCHI.Automator.StateMachine.Handlers;
 
 public class PathfindingHandler(
+    IChainManager manager,
     IAutomatorMemory memory,
     IPathStepExecutor pathStepExecutor,
     IObjectTable objects,
@@ -33,7 +34,7 @@ public class PathfindingHandler(
 
     public override StatePriority GetScore()
     {
-        return memory.TryRemember<GoalPathStepMemory>(out var _) ? StatePriority.AboveNormal : StatePriority.Never;
+        return memory.TryRemember<GoalPathStepMemory>(out var _) ? StatePriority.High : StatePriority.Never;
     }
 
     public override void Handle()

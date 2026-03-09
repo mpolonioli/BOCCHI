@@ -30,6 +30,7 @@ public class ApproachingKnowledgeCrystalHandler(
             return null;
         }
 
+        // @todo this seems bugged and returns CE spawns too...
         var crystals = zone.GetNearbyKnowledgeCrystals().ToList();
         if (crystals.Count == 0)
         {
@@ -42,6 +43,7 @@ public class ApproachingKnowledgeCrystalHandler(
         {
             return BuffState.ChoosingBuffToApply;
         }
+
 
         var destination = closest.Position.GetApproachPosition(player.Position, InteractionRange);
         pathfinder.PathfindAndMoveTo(new PathfinderConfig(destination)

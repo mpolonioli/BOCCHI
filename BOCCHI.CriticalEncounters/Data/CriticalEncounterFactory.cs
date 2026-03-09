@@ -4,12 +4,12 @@ using Ocelot.Services.Logger;
 
 namespace BOCCHI.CriticalEncounters.Data;
 
-public class CriticalEncounterFactory(ILogger log) : ICriticalEncounterFactory
+public class CriticalEncounterFactory : ICriticalEncounterFactory
 {
     public CriticalEncounter Create(DynamicEvent ev)
     {
         var id = new CriticalEncounterId(ev.DynamicEventId);
 
-        return new CriticalEncounter(id, ev,log);
+        return new CriticalEncounter(id, ev);
     }
 }

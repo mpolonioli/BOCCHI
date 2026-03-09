@@ -2,6 +2,8 @@
 using BOCCHI.Common.Steps;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Ocelot.Chain;
+using Ocelot.Chain.Middleware.Chain;
+using Ocelot.Chain.Middleware.Step;
 
 namespace BOCCHI.Services.Materia;
 
@@ -35,6 +37,7 @@ public unsafe class MateriaExtractionService(IChainFactory chains) : IMateriaExt
     public IChain ExtractEquipped()
     {
         var chain = chains.Create("Materia Extraction");
+        chain.UseMiddleware<LogChainMiddleware>().UseStepMiddleware<LogStepMiddleware>();
 
         chain.Then<UnmountStep>();
         chain.Then<ExtractStep>();

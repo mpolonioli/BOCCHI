@@ -11,7 +11,6 @@ public class CurrencyRenderer(
     ICurrencyTracker tracker,
     CurrencyConfig config,
     UIConfig uiConfig,
-    IBrandingService branding,
     IUIService ui
 ) : IDynamicRenderer
 {
@@ -24,18 +23,11 @@ public class CurrencyRenderer(
 
         var graphBucketSize = TimeSpan.FromSeconds(config.GraphBucketSize);
 
-        ui.Render(
-            ui.Compose().Text("Gold Per Hour", branding.DalamudYellow),
-            ui.Compose().Text(tracker.GoldPerHour.ToString("f2"))
-        );
 
+        ui.LabelledValue("Gold Per Hour", tracker.GoldPerHour.ToString("f2"));
         RenderGraph(tracker.GetGoldHistory(graphBucketSize), "gold_history");
 
-        ui.Render(
-            ui.Compose().Text("Silver Per Hour", branding.DalamudYellow),
-            ui.Compose().Text(tracker.SilverPerHour.ToString("f2"))
-        );
-
+        ui.LabelledValue("Silver Per Hour", tracker.SilverPerHour.ToString("f2"));
         RenderGraph(tracker.GetSilverHistory(graphBucketSize), "silver_history");
     }
 

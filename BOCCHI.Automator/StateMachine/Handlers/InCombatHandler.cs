@@ -1,14 +1,21 @@
 ﻿using BOCCHI.Automator.Data;
+using BOCCHI.Common.Services;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Plugin.Services;
-using FFXIVClientStructs.FFXIV.Client.Game;
-using FFXIVClientStructs.FFXIV.Client.Game.Fate;
-using Ocelot.Services.UI;
+using ECommons.Throttlers;
+using Ocelot.Actions;
+using Ocelot.Services.Pathfinding;
 using Ocelot.States.Score;
 
 namespace BOCCHI.Automator.StateMachine.Handlers;
 
-public class InCombatHandler(IObjectTable objects, ICondition conditions, IUIService ui) : ScoreStateHandler<AutomatorState, StatePriority>(AutomatorState.InCombat)
+public class InCombatHandler(
+    IObjectTable objects,
+    ICondition conditions,
+    IFateContext fateContext,
+    ICriticalEncounterContext criticalEncounterContext,
+    IPathfinder pathfinder
+) : ScoreStateHandler<AutomatorState, StatePriority>(AutomatorState.InCombat)
 {
     public override StatePriority GetScore()
     {
@@ -17,39 +24,29 @@ public class InCombatHandler(IObjectTable objects, ICondition conditions, IUISer
             return StatePriority.Never;
         }
 
-        // Fate check
-        unsafe
+        if (criticalEncounterContext.IsInCriticalEncounter() || fateContext.IsInFate())
         {
-            var fateManager = FateManager.Instance();
-            if (fateManager != null)
-            {
-                if (fateManager->CurrentFate != null)
-                {
-                    return StatePriority.Never;
-                }
-            }
+            return StatePriority.Never;
         }
 
-        // Critical Encounter Check
+        // Mob farm check
 
-        // Somehow a Mob Farm Check
-
-        return conditions[ConditionFlag.InCombat] ? StatePriority.Always :  StatePriority.Never;
+        return conditions[ConditionFlag.InCombat] ? StatePriority.High : StatePriority.Never;
     }
 
     public override void Handle()
     {
-    }
-
-    public override void Render()
-    {
-        base.Render();
-
-        foreach (var condition in conditions.AsReadOnlySet())
+        if (objects.LocalPlayer is not { } player)
         {
-            if (conditions[condition])
+            return;
+        }
+
+        if (conditions[ConditionFlag.Mounted])
+        {
+            if (EzThrottler.Throttle("InFate::Unmount") && Actions.Unmount.CanCast())
             {
-                ui.Text(condition);
+                Actions.Unmount.Cast();
+                pathfinder.Stop();
             }
         }
     }

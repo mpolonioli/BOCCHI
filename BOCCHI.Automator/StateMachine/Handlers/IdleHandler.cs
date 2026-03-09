@@ -4,6 +4,7 @@ using BOCCHI.Automator.Services;
 using BOCCHI.Common.Data.Zones;
 using BOCCHI.Common.Services;
 using Dalamud.Plugin.Services;
+using Ocelot.Chain;
 using Ocelot.Extensions;
 using Ocelot.Pathfinding.Extensions;
 using Ocelot.Services.Pathfinding;
@@ -17,6 +18,7 @@ public class IdleHandler(
     IZoneProvider zones,
     IObjectTable objects,
     IPathfinder pathfinder,
+    IChainManager chains,
     IUIService ui
 ) : ScoreStateHandler<AutomatorState, StatePriority>(AutomatorState.Idle)
 {
@@ -28,6 +30,7 @@ public class IdleHandler(
     public override void Enter()
     {
         base.Enter();
+        chains.CancelAll();
         pathfinder.Stop();
         memory.TryAdd<IdleStateMemory>();
     }
@@ -60,14 +63,14 @@ public class IdleHandler(
 
         var aetheryte = zone.GetAetherytePosition();
         var distance = player.Position.Distance2D(aetheryte);
-        const float maxInteractDistance = 2.5f;
+        const float maxInteractDistance = 3.5f;
 
         if (distance <= maxInteractDistance)
         {
             return;
         }
 
-        var goal = aetheryte.GetApproachPosition(player.Position, maxInteractDistance, 30f);
+        var goal = aetheryte.GetApproachPosition(player.Position, maxInteractDistance - 0.1f, 30f);
         pathfinder.PathfindAndMoveTo(new PathfinderConfig(goal));
     }
 

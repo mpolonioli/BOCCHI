@@ -36,7 +36,7 @@ public class ExtractStep(
 
                 if (EzThrottler.Throttle("ExtractStep::Extract::Extract", 100))
                 {
-                    return StepResult.Break();
+                    return StepResult.Failure("ExtractStep::Extract::Extract");
                 }
 
                 unsafe

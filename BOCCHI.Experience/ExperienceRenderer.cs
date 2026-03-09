@@ -27,7 +27,7 @@ public class ExperienceRenderer(
 
         var left = ui.Compose()
             .Text("Current Job", branding.DalamudYellow)
-            .Text(current.Id.ToString());
+            .Text(current.Data.Name.ToString());
 
         var right = ui.Compose()
             .Text($"Level: {current.Level} ({current.TotalExperience})");
