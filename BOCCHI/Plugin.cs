@@ -41,6 +41,8 @@ public sealed class Plugin(IDalamudPluginInterface plugin, IPluginLog logger) : 
 {
     private readonly IDalamudPluginInterface plugin = plugin;
 
+    private readonly IPluginLog logger = logger;
+
     public override string Name { get; } = "BOCCHI";
 
     protected override void Boostrap(IServiceCollection services)
@@ -99,7 +101,6 @@ public sealed class Plugin(IDalamudPluginInterface plugin, IPluginLog logger) : 
 
     private static void BootstrapConfiguration(IServiceCollection services, IDalamudPluginInterface plugin, IPluginLog logger)
     {
-        Achievement
         var migrator = new ConfigMigrator(plugin, logger);
         if (migrator.ShouldMigrate())
         {
