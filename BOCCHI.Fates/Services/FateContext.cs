@@ -5,6 +5,7 @@ using Dalamud.Plugin.Services;
 using ECommons.GameFunctions;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.Fate;
+using Ocelot.Extensions;
 
 namespace BOCCHI.Fates.Services;
 
@@ -22,7 +23,7 @@ public class FateContext(IObjectTable objects) : IFateContext
         return fateManager != null && fateManager->CurrentFate != null ? new FateId(fateManager->CurrentFate->FateId) : null;
     }
 
-    public IEnumerable<IBattleNpc> GetFateTargets()
+    public IEnumerable<IBattleNpc> GetTargets()
     {
         var id = GetFateId();
         if (id == null)
@@ -30,7 +31,13 @@ public class FateContext(IObjectTable objects) : IFateContext
             return [];
         }
 
-        id = id.Value;
+        var player = objects.LocalPlayer;
+        if (player == null)
+        {
+            return [];
+        }
+
+        var fateId = id.Value.Value;
 
         return objects.OfType<IBattleNpc>()
             .Where(obj => obj is { IsDead: false, IsTargetable: true })
@@ -41,8 +48,10 @@ public class FateContext(IObjectTable objects) : IFateContext
                 {
                     var battleChara = (BattleChara*)obj.Address;
 
-                    return battleChara->FateId == GetFateId()?.Value;
+                    return battleChara->FateId == fateId;
                 }
-            });
+            })
+            .OrderBy(o => o.Position.Distance2D(player.Position));
+
     }
 }

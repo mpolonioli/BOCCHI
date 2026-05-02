@@ -1,13 +1,14 @@
 ﻿using BOCCHI.Common.Data.Zones;
 using Dalamud.Plugin.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BOCCHI.Data.Zones;
 
-public class ZoneProvider(IClientState client, IObjectTable objects) : IZoneProvider
+public class ZoneProvider(IClientState client, IServiceProvider services) : IZoneProvider
 {
     private readonly Dictionary<ushort, IZone> Zones = new()
     {
-        { 1252, new SouthHorn(objects) },
+        { 1252, services.GetRequiredService<SouthHorn>() },
     };
 
 

@@ -1,5 +1,4 @@
 ﻿using BOCCHI.Automator.Data.Goals;
-using BOCCHI.Automator.Data.Paths;
 
 namespace BOCCHI.Automator.Data;
 

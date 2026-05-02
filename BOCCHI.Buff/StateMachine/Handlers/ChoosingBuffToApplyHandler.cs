@@ -27,6 +27,12 @@ public class ChoosingBuffToApplyHandler(
             return null;
         }
 
+        var freelancer = supportJobs.Create(SupportJobId.PhantomFreelancer);
+        if (config.ApplyBuffsUsingInquiringMind && freelancer.Level >= 15)
+        {
+            return BuffState.CastingInquiringMind;
+        }
+
         foreach (var buff in buffs.GetBuffs().Where(b => b.ShouldApply(config)))
         {
             var job = supportJobs.Create(buff.SupportJobId);
@@ -39,12 +45,6 @@ public class ChoosingBuffToApplyHandler(
             if (remaining > config.ReapplyThreshold)
             {
                 continue;
-            }
-
-            var freelancer = supportJobs.Create(SupportJobId.PhantomFreelancer);
-            if (config.ApplyBuffsUsingInquiringMind && freelancer.Level >= 15)
-            {
-                return BuffState.CastingInquiringMind;
             }
 
             return buff.State;

@@ -23,9 +23,8 @@ public class ChoosingActivityHandler(
             return StatePriority.Never;
         }
 
-        // var fates = fateRepository.Snapshot().Count;
+        var fates = fateRepository.Snapshot().Count;
         var criticalEncounters = criticalEncounterRepository.SnapshotWithoutForkedTower().Count(ce => ce.State == DynamicEventState.Register);
-        var fates = 0;
 
         if (fates <= 0 && criticalEncounters <= 0)
         {
@@ -47,14 +46,14 @@ public class ChoosingActivityHandler(
 
 
         // @TODO: We can design a fate scoring system later
-        // var fates = fateRepository.Snapshot();
-        // var fate = fates.FirstOrDefault();
-        // if (fate != null)
-        // {
-        //     var goal = goalFactory.Fate(fate.Id);
-        //     memory.TryAdd(new GoalMemory(goal));
-        //     return;
-        // }
+        var fates = fateRepository.Snapshot();
+        var fate = fates.FirstOrDefault();
+        if (fate != null)
+        {
+            var goal = goalFactory.Fate(fate.Id);
+            memory.TryAdd(new GoalMemory(goal));
+            return;
+        }
 
         throw new Exception("Unable to determine a goal in the Choosing activity state...");
     }

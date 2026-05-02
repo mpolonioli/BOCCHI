@@ -1,12 +1,13 @@
 ﻿using BOCCHI.Common;
+using BOCCHI.Common.Data.Zones;
 using Dalamud.Plugin.Services;
-using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
+using Ocelot.Graphics;
 using Ocelot.Services.UI;
 using Ocelot.Services.WindowManager;
 
 namespace BOCCHI.Renderers;
 
-public class MainRenderer(IEnumerable<IDynamicRenderer> renderers, ICondition conditions, IUIService ui) : IMainRenderer
+public class MainRenderer(IEnumerable<IDynamicRenderer> renderers, IZoneProvider zones, IUIService ui) : IMainRenderer
 {
     private IEnumerable<IDynamicRenderer> orderedRenderers
     {
@@ -15,23 +16,17 @@ public class MainRenderer(IEnumerable<IDynamicRenderer> renderers, ICondition co
 
     public void Render()
     {
+        if (!zones.GetZone().IsOccultCrescentZone())
+        {
+            // TODO: Translate
+            ui.Text("Not in a supported Occult Crescent Zone.", Color.Red);
+            return;
+        }
+
+
         foreach (var renderer in orderedRenderers)
         {
             renderer.Render();
-        }
-
-        unsafe
-        {
-
-            var dec = DynamicEventContainer.GetInstance();
-            if (dec != null)
-            {
-                ui.LabelledValue("DEC", dec->CurrentEventId);
-            }
-            else
-            {
-                ui.LabelledValue("DEC", "NONE");
-            }
         }
     }
 }

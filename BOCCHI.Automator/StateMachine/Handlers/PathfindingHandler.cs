@@ -1,5 +1,4 @@
 ﻿using BOCCHI.Automator.Data;
-using BOCCHI.Automator.Data.Paths;
 using BOCCHI.Automator.Data.StateMemory;
 using BOCCHI.Automator.Services;
 using BOCCHI.Automator.Services.Paths;
@@ -73,15 +72,6 @@ public class PathfindingHandler(
         {
             logger.Info("Starting next task step...");
             currentPathTask = pathStepExecutor.Execute(step);
-
-            if (step.PathStepData is Pathfind pathfind)
-            {
-                var distance = player.Position.Distance2D(pathfind.destination);
-                if (EzThrottler.Throttle("Pathfinding.Mount") && !conditions[ConditionFlag.Mounted] && !conditions[ConditionFlag.Mounting] && Actions.MountRoulette.CanCast() && distance > 30f)
-                {
-                    Actions.MountRoulette.Cast();
-                }
-            }
         }
 
         if (!path.IsValid)

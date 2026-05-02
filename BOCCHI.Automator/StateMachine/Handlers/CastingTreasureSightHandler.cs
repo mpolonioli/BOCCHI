@@ -1,5 +1,6 @@
 ﻿using BOCCHI.Automator.Data;
 using BOCCHI.Automator.Data.StateMemory;
+using BOCCHI.Common.Config;
 using BOCCHI.Common.Data.StateMemory;
 using BOCCHI.Common.Data.SupportJobs;
 using BOCCHI.Common.Data.Zones;
@@ -20,12 +21,11 @@ public class CastingTreasureSightHandler(
     ISupportJobFactory supportJobs,
     ISupportJobChanger changer,
     IAutomatorMemory memory,
+    AutomatorConfig config,
     ILogger<CastingTreasureSightHandler> logger
 ) : ScoreStateHandler<AutomatorState, StatePriority>(AutomatorState.CastingTreasureSight)
 {
     private DateTime lastCast = DateTime.MinValue;
-
-    private readonly TimeSpan recastInterval = TimeSpan.FromMinutes(2);
 
     public override StatePriority GetScore()
     {
@@ -40,7 +40,7 @@ public class CastingTreasureSightHandler(
             return StatePriority.Never;
         }
 
-        if (zone.GetZone().IsInBasecamp() /** && config.ShouldCastTreasureSight */ && GetLastCastDelta() >= recastInterval)
+        if (zone.GetZone().IsInBasecamp() && config.ShouldCastTreasureSight  && GetLastCastDeltaSeconds() >= config.TreasureSightRecastIntervalSeconds)
         {
             return StatePriority.Always;
         }
@@ -97,8 +97,8 @@ public class CastingTreasureSightHandler(
         }
     }
 
-    private TimeSpan GetLastCastDelta()
+    private int GetLastCastDeltaSeconds()
     {
-        return DateTime.Now - lastCast;
+        return (DateTime.Now - lastCast).Seconds;
     }
 }

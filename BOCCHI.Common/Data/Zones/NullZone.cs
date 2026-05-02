@@ -1,6 +1,8 @@
 ﻿using System.Numerics;
 using BOCCHI.Common.Data.Aethernet;
 using BOCCHI.Common.Data.KnowledgeCrystals;
+using BOCCHI.Common.Data.Zones.Graph;
+using Dalamud.Configuration;
 
 namespace BOCCHI.Common.Data.Zones;
 
@@ -16,6 +18,11 @@ public class NullZone : IZone
         return false;
     }
 
+    public AethernetData GetMainAetheryte()
+    {
+        return new AethernetData();
+    }
+
     public Vector3 GetAetherytePosition()
     {
         return Vector3.NaN;
@@ -24,6 +31,11 @@ public class NullZone : IZone
     public Vector3 GetStartingPosition()
     {
         return Vector3.NaN;
+    }
+
+    public List<AethernetData> GetAetherytes()
+    {
+        return [];
     }
 
     public List<AethernetData> GetAethernetShards()
@@ -49,5 +61,10 @@ public class NullZone : IZone
     public bool IsInForkedTower()
     {
         return false;
+    }
+
+    public async Task<ZoneGraph> GetGraph()
+    {
+        return new ZoneGraph();
     }
 }

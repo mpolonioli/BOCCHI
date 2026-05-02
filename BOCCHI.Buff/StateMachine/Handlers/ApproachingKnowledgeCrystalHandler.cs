@@ -45,7 +45,7 @@ public class ApproachingKnowledgeCrystalHandler(
         }
 
 
-        var destination = closest.Position.GetApproachPosition(player.Position, InteractionRange);
+        var destination = closest.Position.GetApproachPosition(player.Position, InteractionRange - 0.2f);
         pathfinder.PathfindAndMoveTo(new PathfinderConfig(destination)
         {
             ShouldSnapToFloor = true,

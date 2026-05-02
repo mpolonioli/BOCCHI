@@ -1,6 +1,7 @@
 ﻿using BOCCHI.Automator.Data;
 using BOCCHI.Automator.Data.StateMemory;
 using BOCCHI.Automator.Services;
+using BOCCHI.Common.Config;
 using BOCCHI.Common.Data.Zones;
 using BOCCHI.Common.Services;
 using Dalamud.Game.Addon.Lifecycle;
@@ -11,6 +12,7 @@ using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Ocelot.Actions;
 using Ocelot.Extensions;
+using Ocelot.Services.Gate;
 using Ocelot.Services.Logger;
 using Ocelot.Services.UI;
 using Ocelot.States.Score;
@@ -22,6 +24,8 @@ public class ReturningHandler(
     IZoneProvider zones,
     ICondition conditions,
     IAddonLifecycle addons,
+    AutomatorConfig config,
+    IGateService gate,
     ILogger logger
 ) : ScoreStateHandler<AutomatorState, StatePriority>(AutomatorState.Returning)
 {
@@ -29,7 +33,7 @@ public class ReturningHandler(
     {
         if (memory.TryRemember<ReturningStateMemory>(out var _))
         {
-            return StatePriority.MediumHigh;
+            return StatePriority.VeryHigh;
         }
 
         if (!memory.TryRemember<IdleStateMemory>(out var idle) || zones.GetZone().IsInBasecamp())
@@ -38,15 +42,14 @@ public class ReturningHandler(
         }
 
         var time = idle.GetIdleTime();
-        var maxRemoteIdle = TimeSpan.FromSeconds(10); // @TODO: We'll add this as a config
+        var maxRemoteIdle = TimeSpan.FromSeconds(config.MaxRemoteIdleTimeSeconds);
 
         return time >= maxRemoteIdle ? StatePriority.VeryLow : StatePriority.Never;
     }
 
     public override void Handle()
     {
-        // Only allow execution every 500ms
-        if (!EzThrottler.Throttle("ReturningHandler::Gate", 500))
+        if (gate.Milliseconds(this, "ReturningHandler::Gate", 500))
         {
             return;
         }
@@ -75,18 +78,16 @@ public class ReturningHandler(
     public override void Enter()
     {
         base.Enter();
-        logger.Info("Registering to SelectYesno PostSetp");
-        addons.RegisterListener(AddonEvent.PostSetup, "SelectYesno", SelectYesNoListerner);
+        addons.RegisterListener(AddonEvent.PostSetup, "SelectYesno", SelectYesNoListener);
     }
 
     public override void Exit(AutomatorState next)
     {
         base.Exit(next);
-        logger.Info("Unregistering from SelectYesno PostSetp");
-        addons.UnregisterListener(AddonEvent.PostSetup, "SelectYesno", SelectYesNoListerner);
+        addons.UnregisterListener(AddonEvent.PostSetup, "SelectYesno", SelectYesNoListener);
     }
 
-    private unsafe void SelectYesNoListerner(AddonEvent ev, AddonArgs args)
+    private unsafe void SelectYesNoListener(AddonEvent ev, AddonArgs args)
     {
         var addon = (AtkUnitBase*)args.Addon.Address;
         if (!addon->IsVisible)

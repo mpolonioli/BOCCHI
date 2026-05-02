@@ -2,6 +2,7 @@
 using BOCCHI.Automator.Data.Goals;
 using BOCCHI.Automator.Data.StateMemory;
 using BOCCHI.Automator.Services;
+using BOCCHI.Common.Config;
 using BOCCHI.Common.Data.Goals;
 using BOCCHI.Common.Data.StateMemory;
 using BOCCHI.Common.Services;
@@ -21,6 +22,7 @@ public class InFateHandler(
     IObjectTable objects,
     ICondition conditions,
     IPathfinder pathfinder,
+    CombatConfig combat,
     ITargetManager targetManager
 ) : ScoreStateHandler<AutomatorState, StatePriority>(AutomatorState.InFate)
 {
@@ -41,14 +43,14 @@ public class InFateHandler(
             return;
         }
 
-        var targets = context.GetFateTargets().ToList();
+        var targets = context.GetTargets().ToList();
         if (targets.Count == 0)
         {
             return;
         }
 
         var target = targets.First();
-        if (EzThrottler.Throttle("InFate::Target") && targetManager.Target == null)
+        if (combat.ShouldHandleTargeting && EzThrottler.Throttle("InFate::Target") && targetManager.Target?.GameObjectId != target.GameObjectId)
         {
             targetManager.Target = target;
         }
@@ -61,6 +63,11 @@ public class InFateHandler(
                 Actions.Unmount.Cast();
                 pathfinder.Stop();
             }
+        }
+
+        if (conditions[ConditionFlag.InCombat])
+        {
+            pathfinder.Stop();
         }
     }
 }

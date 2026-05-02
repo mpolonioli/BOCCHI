@@ -23,7 +23,8 @@ public class ApplyingBuffsHandler(
     IPlayer player,
     IAutomatorMemory memory,
     ISupportJobFactory jobs,
-    BuffConfig config
+    BuffConfig config,
+    ILogger<ApplyingBuffsHandler> logger
 ) : ScoreStateHandler<AutomatorState, StatePriority>(AutomatorState.ApplyingBuffs)
 {
     private IStateMachine<BuffState>? stateMachine;

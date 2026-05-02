@@ -9,5 +9,5 @@ public interface IFateContext
 
     FateId? GetFateId();
 
-    IEnumerable<IBattleNpc> GetFateTargets();
+    IEnumerable<IBattleNpc> GetTargets();
 }

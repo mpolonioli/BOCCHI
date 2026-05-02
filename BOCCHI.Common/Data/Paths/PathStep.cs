@@ -1,10 +1,8 @@
 ﻿using System.Numerics;
-using BOCCHI.Automator.Services.Paths;
-using BOCCHI.Common.Data.Paths;
 using BOCCHI.Common.Services.Paths;
 using Ocelot.Chain;
 
-namespace BOCCHI.Automator.Data.Paths;
+namespace BOCCHI.Common.Data.Paths;
 
 public class PathStep : IPathStep
 {
@@ -18,7 +16,7 @@ public class PathStep : IPathStep
     {
         return PathStepData switch
         {
-            Pathfind(var destination) => $"Pathfind to {destination:f2}",
+            Pathfind(var destination, var range) => $"Pathfind to {destination:f2} (range = {range:f2})",
             Teleport(var id) => $"Teleport to {id}",
             Return _ => "Return to Basecamp",
             _ => throw new ArgumentOutOfRangeException(nameof(PathStepData))
@@ -53,11 +51,11 @@ public class PathStep : IPathStep
         };
     }
 
-    public static PathStep Pathfind(Vector3 destination)
+    public static PathStep Pathfind(Vector3 destination, float range = 0f)
     {
         return new PathStep
         {
-            PathStepData = new Pathfind(destination),
+            PathStepData = new Pathfind(destination, range),
             Kind = PathStepKind.Pathfind,
         };
     }

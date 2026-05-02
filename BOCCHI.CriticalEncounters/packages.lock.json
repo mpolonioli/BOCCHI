@@ -8,64 +8,6 @@
         "resolved": "0.1.3",
         "contentHash": "z9dUcxmdAUEYBkCVUiysW5urzN6vz5AsGaL2KHic/jRj6TsNqO+WvADs1aJUKRtdgjpXJcaMqsBnp5NKtawgRw=="
       },
-      "FFXIVOcelot": {
-        "type": "Direct",
-        "requested": "[3.3.0, )",
-        "resolved": "3.3.0",
-        "contentHash": "2xJfbjaw3CVccuOZ4q+D7VoDTatrbpifK4olqvbIJsi8hBRm/PdReMn/+Pm9ZPR51Kv0noQ6LPEUL/OSoZRKDg==",
-        "dependencies": {
-          "Microsoft.Extensions.DependencyInjection": "10.0.1"
-        }
-      },
-      "FFXIVOcelot.Chain": {
-        "type": "Direct",
-        "requested": "[1.2.0, )",
-        "resolved": "1.2.0",
-        "contentHash": "3mTrMnsqUa6rGGeM1G3gsl3CLEXxBOd51jzb48t/ZlGnckkvPMebJ6qNG4Rr7x1bc9U8NH85jf7Wg2GlXlM+CQ==",
-        "dependencies": {
-          "ECommons": "3.0.1.14",
-          "FFXIVOcelot": "1.2.0",
-          "FFXIVOcelot.Pathfinding": "1.2.0"
-        }
-      },
-      "FFXIVOcelot.ECommons": {
-        "type": "Direct",
-        "requested": "[1.3.0, )",
-        "resolved": "1.3.0",
-        "contentHash": "1F0x9ajEiYvevutSn4wX42bBhhC7Pvm64DNelMigo0Ni4FfnK0xr/iliMN+LUezLBxLNq3kZXz6PZlcAnl+8Qg==",
-        "dependencies": {
-          "ECommons": "3.1.0.10",
-          "FFXIVOcelot": "1.3.0"
-        }
-      },
-      "FFXIVOcelot.Pathfinding": {
-        "type": "Direct",
-        "requested": "[1.2.0, )",
-        "resolved": "1.2.0",
-        "contentHash": "KOdJ3FDhERyGDFeM2wDc8sZu9zjtCp16W8NjRKfsefEn8no5hf+5sAZfRJCiFiJ12jsToc9ybOVG6MHoVleC7w==",
-        "dependencies": {
-          "FFXIVOcelot": "1.2.0"
-        }
-      },
-      "FFXIVOcelot.Pictomancy": {
-        "type": "Direct",
-        "requested": "[1.2.0, )",
-        "resolved": "1.2.0",
-        "contentHash": "E6snZew+5MNqc+UQIrFoKSkUPyVtLazeqJTtc+ExvI+DoN6CZ9hLwNmPqfePgYrBlH+OxIxyvC7v7IQzHQfgig==",
-        "dependencies": {
-          "FFXIVOcelot": "1.2.0",
-          "Pictomancy": "0.0.2"
-        }
-      },
-      "FFXIVOcelot.UI": {
-        "type": "Direct",
-        "requested": "[1.2.0, )",
-        "resolved": "1.2.0",
-        "contentHash": "rNcUoMfb8+NeZbipByxQO7CYs4iZGhnmEjIS87vNAbbFlar0wkS7yeOuwIKhFmXiWoru+Ar/eYyZN+ixWFYhbA==",
-        "dependencies": {
-          "FFXIVOcelot": "1.2.0"
-        }
-      },
       "ECommons": {
         "type": "Transitive",
         "resolved": "3.1.0.10",
@@ -166,12 +108,52 @@
       "bocchi.common": {
         "type": "Project",
         "dependencies": {
-          "FFXIVOcelot": "[3.3.0, )",
-          "FFXIVOcelot.Chain": "[1.2.0, )",
-          "FFXIVOcelot.ECommons": "[1.3.0, )",
-          "FFXIVOcelot.Pathfinding": "[1.2.0, )",
-          "FFXIVOcelot.Pictomancy": "[1.2.0, )",
-          "FFXIVOcelot.UI": "[1.2.0, )"
+          "FFXIVOcelot": "[1.0.0, )",
+          "FFXIVOcelot.Chain": "[1.0.0, )",
+          "FFXIVOcelot.ECommons": "[1.0.0, )",
+          "FFXIVOcelot.Pathfinding": "[1.0.0, )",
+          "FFXIVOcelot.Pictomancy": "[1.0.0, )",
+          "FFXIVOcelot.UI": "[1.0.0, )"
+        }
+      },
+      "FFXIVOcelot": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "[10.0.1, )"
+        }
+      },
+      "FFXIVOcelot.Chain": {
+        "type": "Project",
+        "dependencies": {
+          "ECommons": "[3.0.1.14, )",
+          "FFXIVOcelot": "[1.0.0, )",
+          "FFXIVOcelot.Pathfinding": "[1.0.0, )"
+        }
+      },
+      "FFXIVOcelot.ECommons": {
+        "type": "Project",
+        "dependencies": {
+          "ECommons": "[3.1.0.10, )",
+          "FFXIVOcelot": "[1.0.0, )"
+        }
+      },
+      "FFXIVOcelot.Pathfinding": {
+        "type": "Project",
+        "dependencies": {
+          "FFXIVOcelot": "[1.0.0, )"
+        }
+      },
+      "FFXIVOcelot.Pictomancy": {
+        "type": "Project",
+        "dependencies": {
+          "FFXIVOcelot": "[1.0.0, )",
+          "Pictomancy": "[0.0.2, )"
+        }
+      },
+      "FFXIVOcelot.UI": {
+        "type": "Project",
+        "dependencies": {
+          "FFXIVOcelot": "[1.0.0, )"
         }
       }
     }

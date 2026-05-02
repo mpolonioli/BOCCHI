@@ -5,6 +5,7 @@ using BOCCHI.Buff;
 using BOCCHI.Common.Config;
 using BOCCHI.Common.Data.SupportJobs;
 using BOCCHI.Common.Data.Zones;
+using BOCCHI.Common.Data.Zones.Graph.Factory;
 using BOCCHI.Common.Services;
 using BOCCHI.Common.Steps;
 using BOCCHI.Config;
@@ -22,6 +23,7 @@ using Dalamud.Configuration;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
+using Lumina.Data.Files;
 using Lumina.Excel.Sheets;
 using Microsoft.Extensions.DependencyInjection;
 using Ocelot;
@@ -63,6 +65,10 @@ public sealed class Plugin(IDalamudPluginInterface plugin, IPluginLog logger) : 
         services.AddSingleton<ISupportJobChanger, SupportJobChanger>();
 
         services.AddSingleton<IZoneProvider, ZoneProvider>();
+        services.AddSingleton<SouthHorn>();
+
+
+        services.AddSingleton<IGraphFactory, GraphFactory>();
 
         services.AddSingleton<UnmountStep>();
         services.AddSingleton<RepairStep>();
@@ -112,6 +118,7 @@ public sealed class Plugin(IDalamudPluginInterface plugin, IPluginLog logger) : 
         services.AddSingleton<IConfiguration>(cfg);
         services.AddSingleton<IPluginConfiguration>(s => s.GetRequiredService<Configuration>());
         var properties = typeof(IConfiguration).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
         foreach (var property in properties)
         {
             var prop = property;

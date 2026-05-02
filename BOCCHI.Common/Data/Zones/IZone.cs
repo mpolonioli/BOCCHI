@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using BOCCHI.Common.Data.Aethernet;
 using BOCCHI.Common.Data.KnowledgeCrystals;
+using BOCCHI.Common.Data.Zones.Graph;
 
 namespace BOCCHI.Common.Data.Zones;
 
@@ -10,9 +11,13 @@ public interface IZone
 
     bool IsInBasecamp();
 
+    AethernetData GetMainAetheryte();
+
     Vector3 GetAetherytePosition();
 
     Vector3 GetStartingPosition();
+
+    List<AethernetData> GetAetherytes();
 
     List<AethernetData> GetAethernetShards();
 
@@ -33,4 +38,41 @@ public interface IZone
     }
 
     bool IsInForkedTower();
+
+    List<ActivityData> GetNormalFateData()
+    {
+        return [];
+    }
+
+    List<ActivityData> GetPotFateData()
+    {
+        return [];
+    }
+
+    List<ActivityData> GetCriticalEncounterData()
+    {
+        return [];
+    }
+
+    List<TreasureData> GetTreasureData()
+    {
+        return [];
+    }
+
+    Dictionary<int, List<PotChestData>> GetPotChestData()
+    {
+        return [];
+    }
+
+    List<PotChestData> GetRerollPotChestData()
+    {
+        return [];
+    }
+
+    List<CarrotData> GetCarrotData()
+    {
+        return [];
+    }
+
+    Task<ZoneGraph> GetGraph();
 }

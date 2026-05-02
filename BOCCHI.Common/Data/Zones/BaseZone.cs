@@ -1,15 +1,29 @@
 ﻿using System.Numerics;
 using BOCCHI.Common.Data.Aethernet;
 using BOCCHI.Common.Data.KnowledgeCrystals;
+using BOCCHI.Common.Data.Zones.Graph;
+using BOCCHI.Common.Data.Zones.Graph.Factory;
+using Dalamud.Game.ClientState.Objects.Enums;
+using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using Ocelot.Services.Logger;
+using Ocelot.Services.Pathfinding;
+using Path = System.IO.Path;
 
 namespace BOCCHI.Common.Data.Zones;
 
-public abstract class BaseZone(IObjectTable objects) : IZone
+public abstract class BaseZone(
+    IObjectTable objects,
+    IDalamudPluginInterface plugin,
+    IGraphFactory graphs,
+    IPathfinder pathfinder,
+    ILogger logger,
+    uint id
+) : IZone
 {
-    protected abstract uint BasecampPlaceNmeId { get; }
+    protected abstract uint BasecampPlaceNameId { get; }
 
     public bool IsOccultCrescentZone()
     {
@@ -24,12 +38,19 @@ public abstract class BaseZone(IObjectTable objects) : IZone
 
     public bool IsInBasecamp()
     {
-        return GetCurrentSubAreaPlaceNameId() == BasecampPlaceNmeId;
+        return GetCurrentSubAreaPlaceNameId() == BasecampPlaceNameId;
     }
+
+    public abstract AethernetData GetMainAetheryte();
 
     public abstract Vector3 GetAetherytePosition();
 
     public abstract Vector3 GetStartingPosition();
+
+    public virtual List<AethernetData> GetAetherytes()
+    {
+        return [];
+    }
 
     public virtual List<AethernetData> GetAethernetShards()
     {
@@ -46,16 +67,57 @@ public abstract class BaseZone(IObjectTable objects) : IZone
         return [];
     }
 
-    public List<KnowledgeCrystalData> GetNearbyKnowledgeCrystals()
+    public virtual List<ActivityData> GetNormalFateData()
     {
         return [];
-        // return objects
-        //     .Where(o => o.BaseId == KnowledgeCrystalData.BaseId)
-        //     .Select(o => new KnowledgeCrystalData
-        //     {
-        //         Position = o.Position,
-        //     })
-        //     .ToList();
+    }
+
+    public virtual List<ActivityData> GetPotFateData()
+    {
+        return [];
+    }
+
+    public virtual List<ActivityData> GetCriticalEncounterData()
+    {
+        return [];
+    }
+
+    public virtual List<TreasureData> GetTreasureData()
+    {
+        return [];
+    }
+
+    public virtual Dictionary<int, List<PotChestData>> GetPotChestData()
+    {
+        return [];
+    }
+
+    public virtual List<PotChestData> GetRerollPotChestData()
+    {
+        return [];
+    }
+
+    public virtual List<CarrotData> GetCarrotData()
+    {
+        return [];
+    }
+
+    public List<KnowledgeCrystalData> GetNearbyKnowledgeCrystals()
+    {
+        // TODO: Fix Knowledge Crystal identification.
+        // The base id we use below isn't unique to knowledge crystals and seems to refer to any event object in OC, this includes the CE zone and CE spawn in zone
+        if (!IsInBasecamp())
+        {
+            return [];
+        }
+
+        return objects
+            .Where(o => o is { ObjectKind: ObjectKind.EventObj, BaseId: KnowledgeCrystalData.BaseId })
+            .Select(o => new KnowledgeCrystalData
+            {
+                Position = o.Position,
+            })
+            .ToList();
     }
 
     protected abstract ushort GetForkedTowerEventId();
@@ -65,5 +127,29 @@ public abstract class BaseZone(IObjectTable objects) : IZone
         var dec = DynamicEventContainer.GetInstance();
 
         return dec != null && dec->CurrentEventId == GetForkedTowerEventId();
+    }
+
+    public async Task<ZoneGraph> GetGraph()
+    {
+        var dir = Path.Combine(plugin.GetPluginConfigDirectory(), "zone_graphs");
+        Directory.CreateDirectory(dir);
+
+        var path = Path.Combine(dir, $"{id}.json");
+
+        if (File.Exists(path))
+        {
+            logger.Info("Loaded zone graph from path: " + path);
+            var json = await File.ReadAllTextAsync(path);
+            return ZoneGraph.FromJson(json);
+        }
+
+        logger.Info("Creating new zone graph");
+        logger.Info("Data: " + GetNormalFateData().Count);
+        var config = new GraphConfig(pathfinder, logger);
+        var graph = await graphs.BuildAsync(config, this);
+        logger.Info("Writing zone graph to: " + path);
+        await File.WriteAllTextAsync(path, graph.ToJson());
+
+        return graph;
     }
 }

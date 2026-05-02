@@ -65,6 +65,6 @@ public class BuffProvider(
 
     private bool ShouldRefreshBuff(BuffData buff)
     {
-        return CanRefreshBuff(buff) && GetMinutesRemainingForBuff(buff) <= config.ReapplyThreshold;
+        return buff.ShouldApply(config) && CanRefreshBuff(buff) && GetMinutesRemainingForBuff(buff) <= config.ReapplyThreshold;
     }
 }

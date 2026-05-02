@@ -1,6 +1,7 @@
 ﻿using BOCCHI.Common.Data.CriticalEncounters;
 using BOCCHI.Common.Data.Fates;
 using Dalamud.Game.ClientState.Objects.SubKinds;
+using Dalamud.Game.ClientState.Objects.Types;
 using Ocelot.Extensions;
 
 namespace BOCCHI.Common.Services;
@@ -11,7 +12,9 @@ public interface ICriticalEncounterContext
 
     CriticalEncounterId? GetCriticalEncounterId();
 
-    bool IsInCeZone(IPlayerCharacter player, CriticalEncounter encounter)
+    IEnumerable<IBattleNpc> GetTargets();
+
+    bool IsInZone(IPlayerCharacter player, CriticalEncounter encounter)
     {
         return player.Position.Distance2D(encounter.Position) <= encounter.Radius;
     }

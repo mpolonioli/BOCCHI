@@ -1,10 +1,10 @@
 ﻿using BOCCHI.Automator.ChainRecipes;
-using BOCCHI.Automator.Data.Paths;
 using BOCCHI.Automator.Data.StateMemory;
 using BOCCHI.Common.Data.Paths;
 using BOCCHI.Common.Data.Zones;
 using BOCCHI.Common.Services;
 using BOCCHI.Common.Services.Paths;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Plugin.Services;
 using Ocelot.Actions;
 using Ocelot.Chain;
@@ -20,16 +20,22 @@ public class PathStepExecutor(
     IChainManager manager,
     IObjectTable objects,
     IAutomatorMemory memory,
-    IZoneProvider zone
+    IZoneProvider zone,
+    ICondition conditions
 ) : IPathStepExecutor
 {
     public Task<ChainResult> Execute(IPathStep step)
     {
         var chain = step.PathStepData switch
         {
-            Pathfind(var destination) => chains.Create($"PathStep::Pathfind({destination:f2}")
+            Pathfind(var destination, var range) => chains.Create($"PathStep::Pathfind({destination:f2}, {range:f2})")
                 .Then(_ =>
                 {
+                    if (conditions[ConditionFlag.Mounted] || conditions[ConditionFlag.Mounting])
+                    {
+                        return StepResult.Success();
+                    }
+
                     if (objects.LocalPlayer is not { } player)
                     {
                         return StepResult.Failure("Didn't mount");
@@ -43,16 +49,18 @@ public class PathStepExecutor(
 
                     return StepResult.Success();
                 }, "PathStep::MaybeMount")
-                .Then<PathfindToChain, PathfinderConfig>(new PathfinderConfig(destination)),
+                .Then<PathfindToChain, PathfinderConfig>(new PathfinderConfig(destination)
+                {
+                    DistanceThreshold = range,
+                }),
 
-            Teleport(var id) => chains.Create($"PathStep::Teleport({id}")
+            Teleport(var id) => chains.Create($"PathStep::Teleport({id})")
                 .Then<TeleportToAethernetChain, uint>(id),
 
 
             Return _ => chains.Create($"PathStep::Return")
                 .Then(_ => memory.TryAdd<ReturningStateMemory>(), "Remember to return")
-                .WaitUntil(_ => new ValueTask<bool>(zone.GetZone().
-                    IsInBasecamp()), TimeSpan.FromSeconds(10)),
+                .WaitUntil(_ => new ValueTask<bool>(zone.GetZone().IsInBasecamp()), TimeSpan.FromSeconds(60)),
 
             _ => throw new ArgumentOutOfRangeException(),
         };
@@ -60,15 +68,3 @@ public class PathStepExecutor(
         return manager.Manage(chain);
     }
 }
-
-// I don't remember what this was
-// step.PathStepData switch
-// {
-//     Pathfind(var destination) => chains.Create($"PathStep::Pathfind({destination:f2}")
-//         ...
-//     Teleport(var id) => chains.Create($"PathStep::Teleport({id}")
-//         ...
-//     Return _ => chains.Create($"PathStep::Return")
-//         ...
-//     _ => throw new ArgumentOutOfRangeException(),
-// };

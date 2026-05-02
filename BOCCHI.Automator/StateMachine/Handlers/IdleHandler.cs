@@ -70,7 +70,8 @@ public class IdleHandler(
             return;
         }
 
-        var goal = aetheryte.GetApproachPosition(player.Position, maxInteractDistance - 0.1f, 30f);
+        // This 0.7f stops any jitter with the above distance check
+        var goal = aetheryte.GetApproachPosition(player.Position, maxInteractDistance - 0.7f, 30f);
         pathfinder.PathfindAndMoveTo(new PathfinderConfig(goal));
     }
 

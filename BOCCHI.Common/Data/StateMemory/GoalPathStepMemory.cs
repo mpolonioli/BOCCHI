@@ -2,10 +2,11 @@
 using BOCCHI.Common.Data.Goals;
 using BOCCHI.Common.Data.Paths;
 using BOCCHI.Common.Services.Paths;
+using Ocelot.Services.Logger;
 
 namespace BOCCHI.Automator.Data.StateMemory;
 
-public sealed class GoalPathStepMemory(IGoal goal, IPathCalculator calculator)
+public sealed class GoalPathStepMemory(IGoal goal, IPathCalculator calculator, ILogger logger)
 {
     private Task<Queue<IPathStep>>? pathStepTask = calculator.Calculate(goal);
 
@@ -28,6 +29,10 @@ public sealed class GoalPathStepMemory(IGoal goal, IPathCalculator calculator)
                     pathStepTask.Dispose();
                     pathStepTask = null;
                 }
+            }
+            else
+            {
+                logger.Info("Pathstep running...");
             }
         }
     }
