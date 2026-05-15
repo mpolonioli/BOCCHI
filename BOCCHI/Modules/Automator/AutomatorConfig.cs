@@ -16,14 +16,16 @@ public class AutomatorConfig : ModuleConfig
     [Enum(typeof(AiType), nameof(AiTypeProvider))]
     public AiType AiProvider { get; set; } = AiType.VBM;
 
-    [Checkbox] public bool ToggleAiProvider { get; set; } = true;
+    [Checkbox]
+    public bool ToggleAiProvider { get; set; } = true;
 
     public bool ShouldToggleAiProvider
     {
         get => IsPropertyEnabled(nameof(ToggleAiProvider));
     }
 
-    [Checkbox] public bool ForceTarget { get; set; } = true;
+    [Checkbox]
+    public bool ForceTarget { get; set; } = true;
 
     public bool ShouldForceTarget
     {
@@ -32,7 +34,6 @@ public class AutomatorConfig : ModuleConfig
 
     [Checkbox]
     [DependsOn(nameof(ForceTarget))]
-
     public bool ForceTargetCentralEnemy { get; set; } = true;
 
     public bool ShouldForceTargetCentralEnemy
@@ -40,10 +41,12 @@ public class AutomatorConfig : ModuleConfig
         get => IsPropertyEnabled(nameof(ForceTargetCentralEnemy));
     }
 
-    [FloatRange(5f, 30f)] public float EngagementRange { get; set; } = 5f;
+    [FloatRange(5f, 30f)]
+    public float EngagementRange { get; set; } = 5f;
 
     // Critical Encounters
-    [Checkbox] public bool DoCriticalEncounters { get; set; } = true;
+    [Checkbox]
+    public bool DoCriticalEncounters { get; set; } = true;
 
     public bool ShouldDoCriticalEncounters
     {
@@ -52,7 +55,6 @@ public class AutomatorConfig : ModuleConfig
 
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
-
     public bool DelayCriticalEncounters { get; set; } = false;
 
     public bool ShouldDelayCriticalEncounters
@@ -62,8 +64,20 @@ public class AutomatorConfig : ModuleConfig
 
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
-    [Indent]
+    public bool DismountOnCriticalEncounterArrival { get; set; } = true;
 
+    public bool ShouldDismountOnCriticalEncounterArrival
+    {
+        get => IsPropertyEnabled(nameof(DismountOnCriticalEncounterArrival));
+    }
+
+    [FloatRange(0f, 10f)]
+    [DependsOn(nameof(DoCriticalEncounters))]
+    public float CriticalEncounterArrivalRadius { get; set; } = 3f;
+
+    [Checkbox]
+    [DependsOn(nameof(DoCriticalEncounters))]
+    [Indent]
     public bool DoScourgeOfTheMind { get; set; } = true;
 
     public bool ShouldDoScourgeOfTheMind
@@ -74,7 +88,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
     [Indent]
-
     public bool DoTheBlackRegiment { get; set; } = true;
 
     public bool ShouldDoTheBlackRegiment
@@ -85,7 +98,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
     [Indent]
-
     public bool DoTheUnbridled { get; set; } = true;
 
     public bool ShouldDoTheUnbridled
@@ -96,7 +108,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
     [Indent]
-
     public bool DoCrawlingDeath { get; set; } = true;
 
     public bool ShouldDoCrawlingDeath
@@ -107,7 +118,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
     [Indent]
-
     public bool DoCalamityBound { get; set; } = true;
 
     public bool ShouldDoCalamityBound
@@ -118,7 +128,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
     [Indent]
-
     public bool DoTrialByClaw { get; set; } = true;
 
     public bool ShouldDoTrialByClaw
@@ -129,7 +138,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
     [Indent]
-
     public bool DoFromTimesBygone { get; set; } = true;
 
     public bool ShouldDoFromTimesBygone
@@ -140,7 +148,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
     [Indent]
-
     public bool DoCompanyOfStone { get; set; } = true;
 
     public bool ShouldDoCompanyOfStone
@@ -151,7 +158,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
     [Indent]
-
     public bool DoSharkAttack { get; set; } = true;
 
     public bool ShouldDoSharkAttack
@@ -162,7 +168,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [Indent]
     [DependsOn(nameof(DoCriticalEncounters))]
-
     public bool DoOnTheHunt { get; set; } = true;
 
     public bool ShouldDoOnTheHunt
@@ -173,7 +178,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
     [Indent]
-
     public bool DoWithExtremePrejudice { get; set; } = true;
 
     public bool ShouldDoWithExtremePrejudice
@@ -184,7 +188,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
     [Indent]
-
     public bool DoNoiseComplaint { get; set; } = true;
 
     public bool ShouldDoNoiseComplaint
@@ -195,7 +198,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
     [Indent]
-
     public bool DoCursedConcern { get; set; } = true;
 
     public bool ShouldDoCursedConcern
@@ -206,7 +208,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
     [Indent]
-
     public bool DoEternalWatch { get; set; } = true;
 
     public bool ShouldDoEternalWatch
@@ -217,7 +218,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
     [Indent]
-
     public bool DoFlameOfDusk { get; set; } = true;
 
     public bool ShouldDoFlameOfDusk
@@ -226,7 +226,8 @@ public class AutomatorConfig : ModuleConfig
     }
 
     // Fates
-    [Checkbox] public bool DoFates { get; set; } = true;
+    [Checkbox]
+    public bool DoFates { get; set; } = true;
 
     public bool ShouldDoFates
     {
@@ -236,7 +237,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [Indent]
     [DependsOn(nameof(DoFates))]
-
     public bool DoRoughWaters { get; set; } = true;
 
     public bool ShouldDoRoughWaters
@@ -247,7 +247,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [Indent]
     [DependsOn(nameof(DoFates))]
-
     public bool DoTheGoldenGuardian { get; set; } = true;
 
     public bool ShouldDoTheGoldenGuardian
@@ -258,7 +257,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [Indent]
     [DependsOn(nameof(DoFates))]
-
     public bool DoKingOfTheCrescent { get; set; } = true;
 
     public bool ShouldDoKingOfTheCrescent
@@ -270,7 +268,6 @@ public class AutomatorConfig : ModuleConfig
     [Indent]
     [DependsOn(nameof(DoFates))]
     [Experimental]
-
     public bool DoTheWingedTerror { get; set; } = false;
 
     public bool ShouldDoTheWingedTerror
@@ -281,7 +278,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [Indent]
     [DependsOn(nameof(DoFates))]
-
     public bool DoAnUnendingDuty { get; set; } = true;
 
     public bool ShouldDoAnUnendingDuty
@@ -292,7 +288,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [Indent]
     [DependsOn(nameof(DoFates))]
-
     public bool DoBrainDrain { get; set; } = true;
 
     public bool ShouldDoBrainDrain
@@ -303,7 +298,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [Indent]
     [DependsOn(nameof(DoFates))]
-
     public bool DoADelicateBalance { get; set; } = true;
 
     public bool ShouldDoADelicateBalance
@@ -314,7 +308,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [Indent]
     [DependsOn(nameof(DoFates))]
-
     public bool DoSwornToSoil { get; set; } = true;
 
     public bool ShouldDoSwornToSoil
@@ -325,7 +318,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [Indent]
     [DependsOn(nameof(DoFates))]
-
     public bool DoAPryingEye { get; set; } = true;
 
     public bool ShouldDoAPryingEye
@@ -336,7 +328,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [Indent]
     [DependsOn(nameof(DoFates))]
-
     public bool DoFatalAllure { get; set; } = true;
 
     public bool ShouldDoFatalAllure
@@ -347,7 +338,6 @@ public class AutomatorConfig : ModuleConfig
     [Checkbox]
     [Indent]
     [DependsOn(nameof(DoFates))]
-
     public bool DoServingDarkness { get; set; } = true;
 
     public bool ShouldDoServingDarkness
@@ -359,7 +349,6 @@ public class AutomatorConfig : ModuleConfig
     [Experimental]
     [Indent]
     [DependsOn(nameof(DoFates))]
-
     public bool DoPersistentPots { get; set; } = false;
 
     public bool ShouldDoPersistentPots
@@ -371,7 +360,6 @@ public class AutomatorConfig : ModuleConfig
     [Experimental]
     [Indent]
     [DependsOn(nameof(DoFates))]
-
     public bool DoPleadingPots { get; set; } = false;
 
     public bool ShouldDoPleadingPots
@@ -381,43 +369,45 @@ public class AutomatorConfig : ModuleConfig
 
     public IReadOnlyDictionary<uint, bool> CriticalEncountersMap
     {
-        get => new Dictionary<uint, bool>
-        {
-            { 33, ShouldDoScourgeOfTheMind },
-            { 34, ShouldDoTheBlackRegiment },
-            { 35, ShouldDoTheUnbridled },
-            { 36, ShouldDoCrawlingDeath },
-            { 37, ShouldDoCalamityBound },
-            { 38, ShouldDoTrialByClaw },
-            { 39, ShouldDoFromTimesBygone },
-            { 40, ShouldDoCompanyOfStone },
-            { 41, ShouldDoSharkAttack },
-            { 42, ShouldDoOnTheHunt },
-            { 43, ShouldDoWithExtremePrejudice },
-            { 44, ShouldDoNoiseComplaint },
-            { 45, ShouldDoCursedConcern },
-            { 46, ShouldDoEternalWatch },
-            { 47, ShouldDoFlameOfDusk },
-        };
+        get =>
+            new Dictionary<uint, bool>
+            {
+                { 33, ShouldDoScourgeOfTheMind },
+                { 34, ShouldDoTheBlackRegiment },
+                { 35, ShouldDoTheUnbridled },
+                { 36, ShouldDoCrawlingDeath },
+                { 37, ShouldDoCalamityBound },
+                { 38, ShouldDoTrialByClaw },
+                { 39, ShouldDoFromTimesBygone },
+                { 40, ShouldDoCompanyOfStone },
+                { 41, ShouldDoSharkAttack },
+                { 42, ShouldDoOnTheHunt },
+                { 43, ShouldDoWithExtremePrejudice },
+                { 44, ShouldDoNoiseComplaint },
+                { 45, ShouldDoCursedConcern },
+                { 46, ShouldDoEternalWatch },
+                { 47, ShouldDoFlameOfDusk },
+            };
     }
 
     public IReadOnlyDictionary<uint, bool> FatesMap
     {
-        get => new Dictionary<uint, bool>
-        {
-            { 1962, ShouldDoRoughWaters },
-            { 1963, ShouldDoTheGoldenGuardian },
-            { 1964, ShouldDoKingOfTheCrescent },
-            { 1965, ShouldDoTheWingedTerror },
-            { 1966, ShouldDoAnUnendingDuty },
-            { 1967, ShouldDoBrainDrain },
-            { 1968, ShouldDoADelicateBalance },
-            { 1969, ShouldDoSwornToSoil },
-            { 1970, ShouldDoAPryingEye },
-            { 1971, ShouldDoFatalAllure },
-            { 1972, ShouldDoServingDarkness },
-            { 1976, ShouldDoPersistentPots },
-            { 1977, ShouldDoPleadingPots },
-        };
+        get =>
+            new Dictionary<uint, bool>
+            {
+                { 1962, ShouldDoRoughWaters },
+                { 1963, ShouldDoTheGoldenGuardian },
+                { 1964, ShouldDoKingOfTheCrescent },
+                { 1965, ShouldDoTheWingedTerror },
+                { 1966, ShouldDoAnUnendingDuty },
+                { 1967, ShouldDoBrainDrain },
+                { 1968, ShouldDoADelicateBalance },
+                { 1969, ShouldDoSwornToSoil },
+                { 1970, ShouldDoAPryingEye },
+                { 1971, ShouldDoFatalAllure },
+                { 1972, ShouldDoServingDarkness },
+                { 1976, ShouldDoPersistentPots },
+                { 1977, ShouldDoPleadingPots },
+            };
     }
 }

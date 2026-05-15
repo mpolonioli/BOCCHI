@@ -53,7 +53,6 @@ public abstract class Activity
         }
     }
 
-
     public Func<Chain>? GetChain(StateManagerModule states)
     {
         return !IsValid() ? null : handlers[state](states);
@@ -68,7 +67,8 @@ public abstract class Activity
                 return module.Config.ShouldToggleAiProvider && !Svc.Condition[ConditionFlag.InCombat];
             }
 
-            return Chain.Create("Illegal:Idle")
+            return Chain
+                .Create("Illegal:Idle")
                 .ConditionalThen(ShouldToggleAi, _ => module.Config.AiProvider.Off())
                 .Then(_ => vnav.Stop())
                 .Then(_ => state = ActivityState.Pathfinding);
@@ -85,23 +85,26 @@ public abstract class Activity
             var isFate = data.Type == EventType.Fate;
             var navType = SmartNavigation.Decide(Player.Position, GetPosition(), activityShard);
 
+            float? maxArrivalRadius = !isFate && module.Config.CriticalEncounterArrivalRadius > 0f ? module.Config.CriticalEncounterArrivalRadius : null;
+
             module.Debug("Selected navigation type: " + navType);
 
-            var chain = Chain.Create("Illegal:Pathfinding")
+            var chain = Chain
+                .Create("Illegal:Pathfinding")
                 .ConditionalWait(_ => !isFate && module.Config.ShouldDelayCriticalEncounters, Random.Shared.Next(10000, 15001));
 
             switch (navType)
             {
                 case NavigationType.Walk:
                     chain
-                        .Then(new PathfindingChain(vnav, GetPosition(), data))
+                        .Then(new PathfindingChain(vnav, GetPosition(), data, maxArrivalRadius))
                         .ConditionalThen(_ => ShouldMountToPathfindTo(GetPosition()), ChainHelper.MountChain());
                     break;
 
                 case NavigationType.ReturnWalk:
                     chain
                         .Then(ChainHelper.ReturnChain())
-                        .Then(new PathfindingChain(vnav, GetPosition(), data))
+                        .Then(new PathfindingChain(vnav, GetPosition(), data, maxArrivalRadius))
                         .ConditionalThen(_ => ShouldMountToPathfindTo(GetPosition()), ChainHelper.MountChain());
                     break;
 
@@ -111,7 +114,7 @@ public abstract class Activity
                         .Then(ChainHelper.TeleportChain(activityShard.Aethernet))
                         .Debug("Waiting for lifestream to not be 'busy'")
                         .Then(new TaskManagerTask(() => !lifestream.IsBusy(), new TaskManagerConfiguration { TimeLimitMS = 30000 }))
-                        .Then(new PathfindingChain(vnav, GetPosition(), data))
+                        .Then(new PathfindingChain(vnav, GetPosition(), data, maxArrivalRadius))
                         .ConditionalThen(_ => ShouldMountToPathfindTo(GetPosition()), ChainHelper.MountChain());
                     break;
 
@@ -121,39 +124,42 @@ public abstract class Activity
                         .Then(ChainHelper.TeleportChain(activityShard.Aethernet))
                         .Debug("Waiting for lifestream to not be 'busy'")
                         .Then(new TaskManagerTask(() => !lifestream.IsBusy(), new TaskManagerConfiguration { TimeLimitMS = 30000 }))
-                        .Then(new PathfindingChain(vnav, GetPosition(), data))
+                        .Then(new PathfindingChain(vnav, GetPosition(), data, maxArrivalRadius))
                         .ConditionalThen(_ => ShouldMountToPathfindTo(GetPosition()), ChainHelper.MountChain());
                     break;
             }
 
-            chain
-                .Then(GetPathfindingWatcher(states))
-                .Then(_ => state = GetPostPathfindingState());
+            chain.Then(GetPathfindingWatcher(states)).Then(_ => state = GetPostPathfindingState());
 
             return chain;
         };
     }
 
-
     private Func<Chain> GetParticipatingChain(StateManagerModule states)
     {
         return () =>
         {
-            return Chain.Create("Illegal:Participating")
+            return Chain
+                .Create("Illegal:Participating")
                 .ConditionalThen(_ => module.Config.ShouldToggleAiProvider, _ => module.Config.AiProvider.On())
                 .Then(_ => vnav.Stop())
-                .Then(new TaskManagerTask(() =>
-                {
-                    if (!module.Config.ShouldForceTarget || !EzThrottler.Throttle("Participating.ForceTarget", 500))
-                    {
-                        return states.GetState() == State.Idle;
-                    }
+                .Then(
+                    new TaskManagerTask(
+                        () =>
+                        {
+                            if (!module.Config.ShouldForceTarget || !EzThrottler.Throttle("Participating.ForceTarget", 500))
+                            {
+                                return states.GetState() == State.Idle;
+                            }
 
-                    var enemies = GetEnemies();
-                    Svc.Targets.Target = module.Config.ShouldForceTargetCentralEnemy ? enemies.Centroid() : enemies.Closest();
+                            var enemies = GetEnemies();
+                            Svc.Targets.Target = module.Config.ShouldForceTargetCentralEnemy ? enemies.Centroid() : enemies.Closest();
 
-                    return states.GetState() == State.Idle;
-                }, new TaskManagerConfiguration { TimeLimitMS = int.MaxValue }))
+                            return states.GetState() == State.Idle;
+                        },
+                        new TaskManagerConfiguration { TimeLimitMS = int.MaxValue }
+                    )
+                )
                 .Then(_ => state = ActivityState.Done);
         };
     }

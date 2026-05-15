@@ -34,6 +34,14 @@
           "label": "Delay before heading to Critical Encounter",
           "tooltip": "Add a 10 - 15 second delay before heading to a critical Encounter"
         },
+        "dismount_on_critical_encounter_arrival": {
+          "label": "Dismount on Critical Encounter arrival",
+          "tooltip": "Dismount the moment you arrive at a Critical Encounter, instead of waiting for combat to start."
+        },
+        "critical_encounter_arrival_radius": {
+          "label": "Arrival spot randomization radius",
+          "tooltip": "Randomize the arrival point within this many yalms of the Critical Encounter marker. 0 disables randomization. Helps spread out bots that would otherwise stack on the same spot."
+        },
         "do_scourge_of_the_mind": {
           "label": "CE: Scourge of the Mind",
           "tooltip": "Toggle participation in the 'Scourge of the Mind' critical encounter."

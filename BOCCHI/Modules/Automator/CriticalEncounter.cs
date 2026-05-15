@@ -1,4 +1,7 @@
-﻿using BOCCHI.ActionHelpers;
+﻿using System;
+using System.Linq;
+using System.Numerics;
+using BOCCHI.ActionHelpers;
 using BOCCHI.Data;
 using BOCCHI.Modules.CriticalEncounters;
 using BOCCHI.Modules.StateManager;
@@ -11,9 +14,6 @@ using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
 using Ocelot.Chain;
 using Ocelot.IPC;
-using System;
-using System.Linq;
-using System.Numerics;
 
 namespace BOCCHI.Modules.Automator;
 
@@ -38,111 +38,119 @@ public class CriticalEncounter : Activity
 
     protected override TaskManagerTask GetPathfindingWatcher(StateManagerModule states)
     {
-        return new TaskManagerTask(() =>
-        {
-            if (!IsValid())
+        return new TaskManagerTask(
+            () =>
             {
-                throw new Exception("Activity is no longer valid.");
-            }
-
-            if (!finalDestination && IsCloseToZone())
-            {
-                // Get all players in the zone
-                var playersInZone = Svc.Objects
-                    .Where(o => o.ObjectKind == ObjectKind.Pc)
-                    .Where(o => Vector3.Distance(o.Position, GetPosition()) <= (data.Radius ?? GetRadius()))
-                    .ToList();
-
-                if (playersInZone.Count > 4)
+                if (!IsValid())
                 {
-                    var minX = playersInZone.Min(p => p.Position.X);
-                    var maxX = playersInZone.Max(p => p.Position.X);
-                    var minY = playersInZone.Min(p => p.Position.Z);
-                    var maxY = playersInZone.Max(p => p.Position.Z);
-
-                    // Choose a random point within the bounding box of players
-                    var rand = new Random();
-                    var randX = (float)(minX + rand.NextDouble() * (maxX - minX));
-                    var randY = (float)(minY + rand.NextDouble() * (maxY - minY));
-                    var randomPoint = new Vector3(randX, GetPosition().Y, randY);
-
-                    module.Debug($"Pathfinding to random point: {randomPoint} (MinX: {minX}, MaxX: {maxX}, MinY: {minY}, MaxY: {maxY})");
-
-                    vnav.PathfindAndMoveTo(randomPoint, false);
-                    finalDestination = true;
-                }
-            }
-
-            if (!finalDestination && IsInZone())
-            {
-                if (vnav.IsRunning())
-                {
-                    vnav.Stop();
+                    throw new Exception("Activity is no longer valid.");
                 }
 
-                return true;
-            }
+                if (!finalDestination && IsCloseToZone())
+                {
+                    // Get all players in the zone
+                    var playersInZone = Svc
+                        .Objects.Where(o => o.ObjectKind == ObjectKind.Pc)
+                        .Where(o => Vector3.Distance(o.Position, GetPosition()) <= (data.Radius ?? GetRadius()))
+                        .ToList();
 
-            var critical = module.GetModule<CriticalEncountersModule>();
-            var encounter = critical.CriticalEncounters[data.Id];
+                    if (playersInZone.Count > 4)
+                    {
+                        var minX = playersInZone.Min(p => p.Position.X);
+                        var maxX = playersInZone.Max(p => p.Position.X);
+                        var minY = playersInZone.Min(p => p.Position.Z);
+                        var maxY = playersInZone.Max(p => p.Position.Z);
 
-            if (encounter.State != DynamicEventState.Register)
-            {
-                throw new Exception("This event started without you");
-            }
+                        // Choose a random point within the bounding box of players
+                        var rand = new Random();
+                        var randX = (float)(minX + rand.NextDouble() * (maxX - minX));
+                        var randY = (float)(minY + rand.NextDouble() * (maxY - minY));
+                        var randomPoint = new Vector3(randX, GetPosition().Y, randY);
 
-            if (finalDestination)
-            {
-                return !vnav.IsRunning();
-            }
+                        module.Debug($"Pathfinding to random point: {randomPoint} (MinX: {minX}, MaxX: {maxX}, MinY: {minY}, MaxY: {maxY})");
 
-            if (!vnav.IsRunning())
-            {
-                throw new VnavmeshStoppedException();
-            }
+                        vnav.PathfindAndMoveTo(randomPoint, false);
+                        finalDestination = true;
+                    }
+                }
 
-            return false;
-        }, new TaskManagerConfiguration { TimeLimitMS = 180000, ShowError = false });
+                if (!finalDestination && IsInZone())
+                {
+                    if (vnav.IsRunning())
+                    {
+                        vnav.Stop();
+                    }
+
+                    if (module.Config.ShouldDismountOnCriticalEncounterArrival)
+                    {
+                        Actions.TryUnmount();
+                    }
+
+                    return true;
+                }
+
+                var critical = module.GetModule<CriticalEncountersModule>();
+                var encounter = critical.CriticalEncounters[data.Id];
+
+                if (encounter.State != DynamicEventState.Register)
+                {
+                    throw new Exception("This event started without you");
+                }
+
+                if (finalDestination)
+                {
+                    return !vnav.IsRunning();
+                }
+
+                if (!vnav.IsRunning())
+                {
+                    throw new VnavmeshStoppedException();
+                }
+
+                return false;
+            },
+            new TaskManagerConfiguration { TimeLimitMS = 180000, ShowError = false }
+        );
     }
-
 
     private Func<Chain> GetWaitingToStartCriticalEncounterChain(StateManagerModule states)
     {
         return () =>
         {
-            return Chain.Create("Illegal:WaitingToStartCriticalEncounter")
-                .Then(new TaskManagerTask(() =>
-                    {
-                        if (!IsValid())
+            return Chain
+                .Create("Illegal:WaitingToStartCriticalEncounter")
+                .Then(
+                    new TaskManagerTask(
+                        () =>
                         {
-                            throw new Exception("The critical encounter appears to have started without you.");
-                        }
-
-                        var critical = module.GetModule<CriticalEncountersModule>();
-                        var encounter = critical.CriticalEncounters[data.Id];
-
-                        if (encounter.State == DynamicEventState.Battle &&
-                            states.GetState() != State.InCriticalEncounter)
-                        {
-                            throw new Exception("The critical encounter appears to have started without you.");
-                        }
-
-                        if (!vnav.IsRunning() && states.GetState() == State.InCombat)
-                        {
-                            Actions.TryUnmount();
-
-                            if (module.Config.ShouldToggleAiProvider)
+                            if (!IsValid())
                             {
-                                module.Config.AiProvider.On();
+                                throw new Exception("The critical encounter appears to have started without you.");
                             }
-                        }
 
-                        return states.GetState() == State.InCriticalEncounter;
-                    },
-                    new TaskManagerConfiguration
-                    {
-                        TimeLimitMS = 180000,
-                    }))
+                            var critical = module.GetModule<CriticalEncountersModule>();
+                            var encounter = critical.CriticalEncounters[data.Id];
+
+                            if (encounter.State == DynamicEventState.Battle && states.GetState() != State.InCriticalEncounter)
+                            {
+                                throw new Exception("The critical encounter appears to have started without you.");
+                            }
+
+                            if (!vnav.IsRunning() && states.GetState() == State.InCombat)
+                            {
+                                Actions.TryUnmount();
+
+                                if (module.Config.ShouldToggleAiProvider)
+                                {
+                                    module.Config.AiProvider.On();
+                                }
+                            }
+
+                            return states.GetState() == State.InCriticalEncounter;
+                        },
+                        new TaskManagerConfiguration { TimeLimitMS = 180000 }
+                    )
+                )
                 .Then(_ => state = ActivityState.Participating);
         };
     }
@@ -179,7 +187,6 @@ public class CriticalEncounter : Activity
     {
         return Player.DistanceTo(GetPosition()) <= radius;
     }
-
 
     protected override unsafe bool IsActivityTarget(IBattleNpc obj)
     {
