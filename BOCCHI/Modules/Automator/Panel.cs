@@ -25,7 +25,7 @@ public class Panel
 
             OcelotUi.Title($"{module.T("panel.activity_state.label")}:");
             ImGui.SameLine();
-            ImGui.TextUnformatted(module.automator.Activity?.state.ToLabel() ?? module.T("panel.activity_state.none"));
+            ImGui.TextUnformatted(module.automator.Activity?.GetStateLabel() ?? module.T("panel.activity_state.none"));
         });
     }
 }

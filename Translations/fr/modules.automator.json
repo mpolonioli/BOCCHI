@@ -149,12 +149,21 @@
         "toggle_ai_provider": {
           "label": "Activer/Désactiver le plugin d'IA",
           "tooltip": "Active le plugin d'IA au démarrage des Aléa/CC\nDésactive le plugin d'IA lors de la navigation vers les Aléa/CC"
+        },
+        "do_treasure_hunt_periodically": {
+          "label": "Run Treasure Hunt periodically",
+          "tooltip": "After every N Fate/Critical Encounter completions, run a full Treasure Hunter scan. The hunt only starts once the previous Fate/CE has fully ended, and is not interrupted by new Fates/CEs while running."
+        },
+        "treasure_hunt_interval": {
+          "label": "Fate/CE per Treasure Hunt",
+          "tooltip": "Number of Fates / Critical Encounters to complete before triggering a Treasure Hunt."
         }
       },
       "panel": {
         "activity": {
           "label": "Activité",
-          "none": "Aucune"
+          "none": "Aucune",
+          "treasure_hunt": "Treasure Hunt"
         },
         "activity_state": {
           "label": "État",

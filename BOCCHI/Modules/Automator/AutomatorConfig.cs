@@ -76,6 +76,23 @@ public class AutomatorConfig : ModuleConfig
     public float CriticalEncounterArrivalRadius { get; set; } = 3f;
 
     [Checkbox]
+    [Illegal]
+    [Label("modules.automator.config.do_treasure_hunt_periodically.label")]
+    [Tooltip("do_treasure_hunt_periodically")]
+    public bool DoTreasureHuntPeriodically { get; set; } = false;
+
+    public bool ShouldDoTreasureHuntPeriodically
+    {
+        get => IsPropertyEnabled(nameof(DoTreasureHuntPeriodically));
+    }
+
+    [IntRange(1, 50)]
+    [DependsOn(nameof(DoTreasureHuntPeriodically))]
+    [Label("modules.automator.config.treasure_hunt_interval.label")]
+    [Tooltip("treasure_hunt_interval")]
+    public int TreasureHuntInterval { get; set; } = 5;
+
+    [Checkbox]
     [DependsOn(nameof(DoCriticalEncounters))]
     [Indent]
     public bool DoScourgeOfTheMind { get; set; } = true;

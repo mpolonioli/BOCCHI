@@ -42,6 +42,14 @@
           "label": "Arrival spot randomization radius",
           "tooltip": "Randomize the arrival point within this many yalms of the Critical Encounter marker. 0 disables randomization. Helps spread out bots that would otherwise stack on the same spot."
         },
+        "do_treasure_hunt_periodically": {
+          "label": "Run Treasure Hunt periodically",
+          "tooltip": "After every N Fate/Critical Encounter completions, run a full Treasure Hunter scan. The hunt only starts once the previous Fate/CE has fully ended, and is not interrupted by new Fates/CEs while running."
+        },
+        "treasure_hunt_interval": {
+          "label": "Fate/CE per Treasure Hunt",
+          "tooltip": "Number of Fates / Critical Encounters to complete before triggering a Treasure Hunt."
+        },
         "do_scourge_of_the_mind": {
           "label": "CE: Scourge of the Mind",
           "tooltip": "Toggle participation in the 'Scourge of the Mind' critical encounter."
@@ -163,7 +171,8 @@
         "title": "Illegal Mode",
         "activity": {
           "label": "Activity",
-          "none": "None"
+          "none": "None",
+          "treasure_hunt": "Treasure Hunt"
         },
         "activity_state": {
           "label": "Activity State",

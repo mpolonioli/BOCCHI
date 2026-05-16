@@ -53,9 +53,14 @@ public abstract class Activity
         }
     }
 
-    public Func<Chain>? GetChain(StateManagerModule states)
+    public virtual Func<Chain>? GetChain(StateManagerModule states)
     {
         return !IsValid() ? null : handlers[state](states);
+    }
+
+    public virtual string GetStateLabel()
+    {
+        return state.ToLabel();
     }
 
     private Func<Chain> GetIdleChain(StateManagerModule states)

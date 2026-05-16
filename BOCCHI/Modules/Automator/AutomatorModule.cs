@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BOCCHI.Modules.Treasure;
 using ECommons.DalamudServices;
 using Ocelot;
 using Ocelot.IPC;
@@ -54,6 +55,11 @@ public class AutomatorModule : Module
         }
 
         automator.Refresh();
+        if (TryGetModule<TreasureModule>(out var treasure) && treasure != null)
+        {
+            treasure.StopHunt();
+        }
+
         Config.Enabled = false;
         PluginConfig.Save();
     }
@@ -87,6 +93,11 @@ public class AutomatorModule : Module
         var wasEnabled = Config.Enabled;
         Config.Enabled = false;
         automator.Refresh();
+        if (TryGetModule<TreasureModule>(out var treasure) && treasure != null)
+        {
+            treasure.StopHunt();
+        }
+
         Plugin.IPC.GetSubscriber<VNavmesh>().Stop();
         Plugin.Chain.Abort();
 

@@ -38,6 +38,31 @@ public class TreasureModule(Plugin _plugin, Config config) : Module(_plugin, con
         get => Tracker.Treasures;
     }
 
+    public bool IsHunting
+    {
+        get => hunter?.IsRunning ?? false;
+    }
+
+    public int HuntProgress
+    {
+        get => hunter?.StepIndex ?? 0;
+    }
+
+    public int HuntTotal
+    {
+        get => hunter?.TotalSteps ?? 0;
+    }
+
+    public void StartHunt()
+    {
+        hunter?.Start();
+    }
+
+    public void StopHunt()
+    {
+        hunter?.Stop();
+    }
+
     private readonly Panel panel = new();
 
     private readonly Radar radar = new();

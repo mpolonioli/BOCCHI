@@ -149,13 +149,22 @@
         "do_pleading_pots": {
           "label": "F.A.T.E.: カチカチのマジックポット",
           "tooltip": "'カチカチのマジックポット' のF.A.T.E.への参加を切り替えます。"
+        },
+        "do_treasure_hunt_periodically": {
+          "label": "Run Treasure Hunt periodically",
+          "tooltip": "After every N Fate/Critical Encounter completions, run a full Treasure Hunter scan. The hunt only starts once the previous Fate/CE has fully ended, and is not interrupted by new Fates/CEs while running."
+        },
+        "treasure_hunt_interval": {
+          "label": "Fate/CE per Treasure Hunt",
+          "tooltip": "Number of Fates / Critical Encounters to complete before triggering a Treasure Hunt."
         }
       },
       "panel": {
         "title": "不正モード",
         "activity": {
           "label": "アクティビティ",
-          "none": "なし"
+          "none": "なし",
+          "treasure_hunt": "Treasure Hunt"
         },
         "activity_state": {
           "label": "アクティビティ状態",

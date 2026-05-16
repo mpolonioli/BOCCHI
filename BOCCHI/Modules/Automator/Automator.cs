@@ -5,6 +5,7 @@ using BOCCHI.Enums;
 using BOCCHI.Modules.CriticalEncounters;
 using BOCCHI.Modules.Fates;
 using BOCCHI.Modules.StateManager;
+using BOCCHI.Modules.Treasure;
 using Dalamud.Plugin.Services;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game.InstanceContent;
@@ -23,6 +24,8 @@ public class Automator
     public Activity? Activity { get; private set; } = null;
 
     private int idleTime = 0;
+
+    private int completedActivityCount = 0;
 
     public void PostUpdate(AutomatorModule module, IFramework framework)
     {
@@ -71,6 +74,7 @@ public class Automator
 
         if (Activity != null && !Activity.IsValid())
         {
+            OnActivityFinished(module, Activity);
             Plugin.Chain.Abort();
             vnav.Stop();
             Activity = null;
@@ -85,6 +89,7 @@ public class Automator
         {
             if (Activity.state == ActivityState.Done)
             {
+                OnActivityFinished(module, Activity);
                 Activity = null;
                 return;
             }
@@ -96,6 +101,17 @@ public class Automator
             }
 
             Plugin.Chain.Submit(chain);
+            return;
+        }
+
+        if (module.Config.ShouldDoTreasureHuntPeriodically
+            && completedActivityCount >= module.Config.TreasureHuntInterval
+            && states.GetState() == State.Idle
+            && module.TryGetModule<TreasureModule>(out var treasure)
+            && treasure != null)
+        {
+            Activity = new TreasureHuntActivity(lifestream, vnav, module, treasure);
+            Svc.Log.Info($"Selected activity: {Activity.GetName()}");
             return;
         }
 
@@ -182,5 +198,19 @@ public class Automator
     {
         Activity = null;
         idleTime = 0;
+        completedActivityCount = 0;
+    }
+
+    private void OnActivityFinished(AutomatorModule module, Activity activity)
+    {
+        if (activity is TreasureHuntActivity)
+        {
+            completedActivityCount = 0;
+        }
+        else
+        {
+            completedActivityCount++;
+            Svc.Log.Info($"Automator: Fate/CE completed ({completedActivityCount}/{module.Config.TreasureHuntInterval} toward next treasure hunt)");
+        }
     }
 }

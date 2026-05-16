@@ -50,6 +50,37 @@ public abstract class Hunter
         get => Steps[stepIndex];
     }
 
+    public bool IsRunning
+    {
+        get => running;
+    }
+
+    public int StepIndex
+    {
+        get => stepIndex;
+    }
+
+    public int TotalSteps
+    {
+        get => Steps.Count;
+    }
+
+    public void Start()
+    {
+        if (running)
+        {
+            return;
+        }
+
+        running = true;
+        stopwatch.Restart();
+    }
+
+    public void Stop()
+    {
+        Teardown();
+    }
+
     protected string JSON = "";
 
     protected ChainQueue StepProcessor
