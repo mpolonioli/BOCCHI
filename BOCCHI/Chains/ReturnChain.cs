@@ -34,7 +34,10 @@ public class ReturnChain(TeleporterModule module, ReturnChainConfig config) : Re
         }
 
         chain.Then(ChainHelper.TreasureSightChain());
-        chain.Then(ApplyBuffs);
+        if (config.ApplyBuffs)
+        {
+            chain.Then(ApplyBuffs);
+        }
 
         if (config.ApproachAetheryte)
         {

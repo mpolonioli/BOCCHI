@@ -337,6 +337,7 @@ public abstract class Hunter
         StepProcessor.SubmitFront(ChainHelper.ReturnChain(new ReturnChainConfig
         {
             ApproachAetheryte = true,
+            ApplyBuffs = false,
         }));
 
         return true;
