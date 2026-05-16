@@ -12,6 +12,8 @@ public class BuffManager
 {
     private bool applyBuffsOnNextTick = false;
 
+    private Job? lockedStartingJob = null;
+
     public void QueueBuffs()
     {
         applyBuffsOnNextTick = true;
@@ -20,6 +22,16 @@ public class BuffManager
     public bool IsQueued()
     {
         return applyBuffsOnNextTick;
+    }
+
+    public void LockStartingJob(Job job)
+    {
+        lockedStartingJob ??= job;
+    }
+
+    public void ClearStartingJob()
+    {
+        lockedStartingJob = null;
     }
 
     private int lowestTimer = int.MaxValue;
@@ -36,6 +48,8 @@ public class BuffManager
         {
             lowestTimer = GetLowestBuffTimer(module);
         }
+
+        EnsureJobRestored();
     }
 
     public void ApplyBuffs(BuffModule module)
@@ -47,6 +61,38 @@ public class BuffManager
         }
 
         manager.Submit(new AllBuffsChain(module));
+    }
+
+    private void EnsureJobRestored()
+    {
+        var target = lockedStartingJob;
+        if (target == null)
+        {
+            return;
+        }
+
+        var buffQueue = ChainManager.Get("OCH##BuffManager");
+        if (buffQueue.IsRunning || Plugin.Chain.IsRunning)
+        {
+            return;
+        }
+
+        if (Job.Current.id == target.id)
+        {
+            lockedStartingJob = null;
+            return;
+        }
+
+        buffQueue.Submit(new RestoreJobChain(target));
+        lockedStartingJob = null;
+    }
+
+    private class RestoreJobChain(Job job) : ChainFactory
+    {
+        protected override Chain Create(Chain chain)
+        {
+            return chain.Then(job.ChangeToChain);
+        }
     }
 
     private int GetLowestBuffTimer(BuffModule module)

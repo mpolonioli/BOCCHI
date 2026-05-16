@@ -4,9 +4,18 @@ using Ocelot.Chain;
 
 namespace BOCCHI.Modules.Buff.Chains;
 
-public class AllBuffsChain(BuffModule module) : ChainFactory
+public class AllBuffsChain : ChainFactory
 {
-    private readonly Job StartingJob = Job.Current;
+    private readonly BuffModule module;
+
+    private readonly Job StartingJob;
+
+    public AllBuffsChain(BuffModule module)
+    {
+        this.module = module;
+        StartingJob = Job.Current;
+        module.BuffManager.LockStartingJob(StartingJob);
+    }
 
     protected override Chain Create(Chain chain)
     {
@@ -16,7 +25,12 @@ public class AllBuffsChain(BuffModule module) : ChainFactory
             .Then(new MonkBuffChain(module))
             .Then(new BardBuffChain(module))
             .Then(new DancerBuffChain(module))
-            .Then(StartingJob.ChangeToChain);
+            .Then(StartingJob.ChangeToChain)
+            .Then(_ =>
+            {
+                module.BuffManager.ClearStartingJob();
+                return true;
+            });
 
         return chain;
     }
