@@ -1,0 +1,58 @@
+{
+  "label": "Guided Treasure Hunt",
+  "tooltip": "The hand-run treasure hunt: it points you at spawn points and marks them off as you pass, but never moves your character.",
+  "fields": {
+    "enabled": {
+      "label": "Enabled",
+      "tooltip": "Track coffer spawn points and offer the guided hunt window."
+    },
+    "observation_range": {
+      "label": "Observation range (yalms)",
+      "tooltip": "How close you have to get before a spawn point with nothing on it is judged empty. Coffers you actually see are recorded from any distance. The client only streams in coffers within a certain distance, so setting this too high marks spots empty that simply had not loaded yet."
+    },
+    "auto_flag_next_target": {
+      "label": "Move the map flag automatically",
+      "tooltip": "Move the flag on to the next spot as soon as the current one resolves, so a lap can be run without reopening the window."
+    },
+    "confirmed_coffer_bias": {
+      "label": "Prefer confirmed coffers",
+      "tooltip": "Multiplier on the distance of spots already known to hold a coffer when picking the next target. Below 1 favours banking what you have found over exploring; 1 treats both alike."
+    },
+    "use_route_distances": {
+      "label": "Order by route distance",
+      "tooltip": "Order the plan by real navmesh distances from the zone's precomputed hunt graph instead of straight lines. Falls back to straight lines where no graph exists."
+    },
+    "draw_spot_markers": {
+      "label": "Draw spawn point markers",
+      "tooltip": "Draw the spawn points in the world. The treasure radar can only draw coffers the client has already streamed in; this shows where to go before that."
+    },
+    "draw_line_to_target": {
+      "label": "Draw a line to the target",
+      "tooltip": "Draw a line from you to the current target spot."
+    },
+    "hide_markers_in_combat": {
+      "label": "Hide markers in combat",
+      "tooltip": "Stop drawing spawn point markers while you are in combat."
+    },
+    "hide_resolved_spots": {
+      "label": "Hide finished spots",
+      "tooltip": "Keep the table to what is left to do. Off by default, because watching a spot resolve is how you know the automatic check is working."
+    },
+    "hide_spots_above_my_level": {
+      "label": "Hide spots above my Knowledge Level",
+      "tooltip": "Drop spots ringed by mobs at or above your Knowledge Level from the table and from target selection. Those are the ones that will aggro on the way in."
+    },
+    "announce_in_chat": {
+      "label": "Announce in chat",
+      "tooltip": "Put each spot's outcome in the chat log as it resolves, so a lap can be run with the window closed."
+    },
+    "reset_checks_on_respawn": {
+      "label": "Clear checks on a respawn wave",
+      "tooltip": "When Treasure Sight reports more coffers than the previous reading, put the finished spots back to unchecked. Located coffers are left alone."
+    },
+    "stale_reading_minutes": {
+      "label": "Treasure Sight reading goes stale after (minutes)",
+      "tooltip": "How old a Treasure Sight reading may get before the counts derived from it are flagged as stale."
+    }
+  }
+}

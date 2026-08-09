@@ -7,6 +7,7 @@ using BOCCHI.Common.Data.SupportJobs;
 using BOCCHI.Common.Data.Zones;
 using BOCCHI.Common.Services;
 using BOCCHI.Common.UI;
+using BOCCHI.Treasure.Guided;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Interface;
@@ -30,6 +31,7 @@ public class CompletionistRenderer
     IZoneProvider zones,
     IDataManager data,
     IGameGui gameGui,
+    GuidedHuntCoordinator guidedHunts,
     ITranslator<MainWindow> translator
 ) : IDynamicRenderer
 {
@@ -165,6 +167,11 @@ public class CompletionistRenderer
         {
             return;
         }
+
+        // Before the flag is set, not after: a guided hunt left auto-flagging would drag the marker off this point the
+        // moment its own target resolved, which is the one thing the player just said they did not want. The label is
+        // hardcoded because the coordinator's whole hand-off message is — a localised fragment would only half-translate it.
+        guidedHunts.ClaimForExternal("the survey point");
 
         gameGui.OpenMapWithMapLink(link);
 
