@@ -807,7 +807,11 @@ public abstract class HuntRoutePlanner
         return route;
     }
 
-    private static string GetDataFile(IDalamudPluginInterface plugin, ZoneId zoneId, string filename)
+    /// <summary>
+    ///     Internal rather than private so the guided hunt reads its graph from the same place, instead of carrying a
+    ///     second copy of the zone-folder mapping that could drift from this one.
+    /// </summary>
+    internal static string GetDataFile(IDalamudPluginInterface plugin, ZoneId zoneId, string filename)
     {
         string pluginDir = GetPluginDirectory(plugin);
         return Path.Combine(pluginDir, "Data", zoneId.TreasureDataFolder(), filename);

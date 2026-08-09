@@ -34,5 +34,9 @@ public class Configuration : IConfiguration
 
     public ForkedTowerConfig ForkedTowerConfig { get; set; } = new();
 
+    public GuidedTreasureConfig GuidedTreasureConfig { get; set; } = new();
+
+    public GuidedCarrotConfig GuidedCarrotConfig { get; set; } = new();
+
     public ShoppingConfig ShoppingConfig { get; set; } = new();
 }

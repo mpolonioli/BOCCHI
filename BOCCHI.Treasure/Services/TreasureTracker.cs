@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.RegularExpressions;
 using BOCCHI.Common.Data.Zones;
 using BOCCHI.Common.Services;
@@ -19,6 +20,13 @@ public class TreasureTracker : ITreasureTracker, IOnUpdate, IDisposable
 {
     /// <summary>WideText / chat: “You sense the presence of X silver … and Y bronze …”.</summary>
     private const uint ActiveChestLogMessageId = 10965;
+
+    /// <summary>
+    ///     Ceiling on a believable coffer count. Nothing in the game puts hundreds of coffers in a zone, so a reading
+    ///     above this is a line that slipped through rather than a count — and the numbers feed what the guided hunt
+    ///     deduces about how many coffers are still hidden.
+    /// </summary>
+    private const int MaxPlausibleCount = 500;
 
     private readonly IAddonLifecycle addonLifecycle;
     private readonly IChatGui chat;
@@ -79,6 +87,8 @@ public class TreasureTracker : ITreasureTracker, IOnUpdate, IDisposable
 
         HashSet<ulong> knownIds = treasures.Select(t => t.GameObjectId).ToHashSet();
 
+        CountOpened(worldTreasures);
+
         for (int i = treasures.Count - 1; i >= 0; i--)
         {
             TreasureCoffer treasure = treasures[i];
@@ -103,10 +113,22 @@ public class TreasureTracker : ITreasureTracker, IOnUpdate, IDisposable
         }
 
         treasures = treasures.OrderBy(t => player.Position.Distance(t.GetPosition())).ToList();
+    }
 
+    /// <summary>
+    ///     Counts down the tier totals as coffers are opened, so the reading stays true between Treasure Sight casts.
+    ///     <para>
+    ///         Runs before the list is pruned, and that ordering is the whole point: <see cref="TreasureCoffer.IsValid" />
+    ///         rejects an opened coffer, so pruning first drops it on the very tick it flips and the transition is never
+    ///         seen. Only coffers the client still has loaded are checked — <see cref="TreasureCoffer.CheckOpened" />
+    ///         dereferences the object, and one that has despawned is gone rather than opened.
+    ///     </para>
+    /// </summary>
+    private void CountOpened(Dictionary<ulong, IGameObject> worldTreasures)
+    {
         foreach (TreasureCoffer treasure in treasures)
         {
-            if (!treasure.CheckOpened())
+            if (!worldTreasures.ContainsKey(treasure.GameObjectId) || !treasure.CheckOpened())
             {
                 continue;
             }
@@ -172,7 +194,10 @@ public class TreasureTracker : ITreasureTracker, IOnUpdate, IDisposable
             return;
         }
 
-        AtkTextNode* textNode = addon->GetNodeById(3)->GetAsAtkTextNode();
+        // GetNodeById returns null when the banner has not built its nodes yet, and GetAsAtkTextNode would
+        // dereference it.
+        AtkResNode* node = addon->GetNodeById(3);
+        AtkTextNode* textNode = node == null ? null : node->GetAsAtkTextNode();
         if (textNode == null)
         {
             return;
@@ -191,14 +216,26 @@ public class TreasureTracker : ITreasureTracker, IOnUpdate, IDisposable
             return;
         }
 
-        if (!int.TryParse(match.Groups[1].Value, out int silver)
-            || !int.TryParse(match.Groups[2].Value, out int bronze))
+        if (!TryReadCount(match.Groups[1].Value, out int silver)
+            || !TryReadCount(match.Groups[2].Value, out int bronze))
         {
             return;
         }
 
         lastParseWideText = DateTime.Now;
         ApplySightCounts(silver, bronze);
+    }
+
+    /// <summary>
+    ///     Reads one scraped count, rejecting an implausible reading rather than letting it through.
+    ///     <para>
+    ///         <see cref="ApplySightCounts" /> clamps into range, which would quietly turn a misparsed 6000 into a
+    ///         confident 30. Refusing the reading keeps the last known good count instead.
+    ///     </para>
+    /// </summary>
+    private static bool TryReadCount(string value, out int count)
+    {
+        return int.TryParse(value, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out count) && count <= MaxPlausibleCount;
     }
 
     private void ApplySightCounts(int silver, int bronze)

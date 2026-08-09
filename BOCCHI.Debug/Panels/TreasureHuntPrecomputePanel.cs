@@ -247,7 +247,7 @@ public sealed class TreasureHuntPrecomputePanel
         {
             Transform* transform = instance->GetTransformImpl();
             Vector3 position = transform->Translation;
-            if (position.Y <= -10f && !hasPositionData)
+            if (!TreasureLayout.IsInPlayableZone(position) && !hasPositionData)
             {
                 continue;
             }

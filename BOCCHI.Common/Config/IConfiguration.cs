@@ -25,5 +25,9 @@ public interface IConfiguration : IPluginConfiguration
 
     ForkedTowerConfig ForkedTowerConfig { get; set; }
 
+    GuidedTreasureConfig GuidedTreasureConfig { get; set; }
+
+    GuidedCarrotConfig GuidedCarrotConfig { get; set; }
+
     ShoppingConfig ShoppingConfig { get; set; }
 }
