@@ -21,6 +21,9 @@ public sealed record PotCycleSnapshot
     /// <summary>True when the anchor came from pot-cycle sync rather than a local sighting.</summary>
     public bool IsRemoteAnchor { get; init; }
 
+    /// <summary>Server epoch of the anchoring pot FATE, so re-observing the same spawn is idempotent.</summary>
+    public int LastObservedStartEpoch { get; init; }
+
     public int CurrentActivePotFateId { get; init; }
 
     public int PredictedNextPotFateId { get; init; }
@@ -74,6 +77,12 @@ public sealed class PotCycleTracker
 ) : IPotCycleTracker, IOnUpdate
 {
     private static readonly TimeSpan PotCycleInterval = TimeSpan.FromMinutes(30);
+
+    /// <summary>A Preparing FATE can publish a start epoch slightly in the future.</summary>
+    private static readonly TimeSpan PreparationTolerance = TimeSpan.FromMinutes(5);
+
+    /// <summary>Beyond this the published epoch and the duration-derived start are treated as disagreeing.</summary>
+    private static readonly TimeSpan ClockSkewTolerance = TimeSpan.FromSeconds(60);
 
     /// <summary>How long after a predicted spawn we keep waiting before rolling the cycle forward.</summary>
     public static readonly TimeSpan PredictionStaleGrace = TimeSpan.FromMinutes(5);
@@ -211,32 +220,42 @@ public sealed class PotCycleTracker
         }
 
         int activeId = active.Id.Value;
+        int startEpoch = active.StartTimeEpoch;
+
+        // Keyed on (id, startEpoch) so a plugin reload mid-FATE recomputes rather than restarting the clock,
+        // and a remote anchor always yields to a local sighting of the same pot.
         if (previous.TerritoryTypeId == territoryType
             && previous.CurrentActivePotFateId == activeId
+            && previous.LastObservedStartEpoch == startEpoch
             && !previous.IsRemoteAnchor)
         {
             return previous;
         }
 
-        DateTimeOffset spawnAt = active.StartTimeEpoch > 0
-            ? DateTimeOffset.FromUnixTimeSeconds(active.StartTimeEpoch)
-            : now;
+        if (potFates.Count != 2)
+        {
+            logger.Warning($"[PotCycleTracker] expected exactly 2 pot FATEs for territory={territoryType}, found {potFates.Count}");
+        }
+
         ActivityData? opposite = potFates.FirstOrDefault(p => p.Id != activeId);
-        DateTimeOffset nextSpawn = spawnAt + PotCycleInterval;
+        (DateTimeOffset observedStart, bool exact) = ResolveStart(active, now);
+        DateTimeOffset predictedNextSpawnAt = opposite == null ? DateTimeOffset.MinValue : observedStart + PotCycleInterval;
 
         logger.Info(
-            $"[PotCycleTracker] zone={territoryType} local anchor pot={activeId} next={opposite?.Id ?? 0} nextSpawnAt={(opposite == null ? "none" : nextSpawn.ToString("O"))}");
+            $"[PotCycleTracker] zone={territoryType} local anchor pot={activeId} start={observedStart:O} exact={exact} next={opposite?.Id ?? 0} "
+            + $"nextSpawnAt={(opposite == null ? "none" : predictedNextSpawnAt.ToString("O"))}");
 
         return new PotCycleSnapshot
         {
             TerritoryTypeId = territoryType,
             HasKnownAnchor = true,
             AnchorPotFateId = activeId,
-            AnchorSpawnAt = spawnAt,
+            AnchorSpawnAt = observedStart,
             IsRemoteAnchor = false,
+            LastObservedStartEpoch = startEpoch,
             CurrentActivePotFateId = activeId,
             PredictedNextPotFateId = opposite?.Id ?? 0,
-            PredictedNextSpawnAt = opposite == null ? DateTimeOffset.MinValue : nextSpawn,
+            PredictedNextSpawnAt = predictedNextSpawnAt,
         };
     }
 
@@ -305,6 +324,30 @@ public sealed class PotCycleTracker
             PredictedNextPotFateId = nextPotId,
             PredictedNextSpawnAt = nextPotId == 0 ? DateTimeOffset.MinValue : nextSpawn,
         };
+    }
+
+    /// <summary>
+    ///     Published epoch (exact) → duration-derived → observation time. The duration-derived value cross-checks the
+    ///     published one so a skewed local clock falls back to the skew-immune estimate instead of shifting every countdown.
+    /// </summary>
+    private static (DateTimeOffset Start, bool Exact) ResolveStart(Fate active, DateTimeOffset now)
+    {
+        DateTimeOffset? derived =
+            active.DurationSeconds > 0 && active.TimeRemainingSeconds > 0 && active.TimeRemainingSeconds <= active.DurationSeconds
+                ? now - TimeSpan.FromSeconds(active.DurationSeconds - active.TimeRemainingSeconds)
+                : null;
+
+        if (active.StartedAt is { } published)
+        {
+            bool sane = published <= now + PreparationTolerance && published >= now - PotCycleInterval;
+            bool agrees = derived == null || (published - derived.Value).Duration() <= ClockSkewTolerance;
+            if (sane && agrees)
+            {
+                return (published, true);
+            }
+        }
+
+        return derived is { } d ? (d, false) : (now, false);
     }
 }
 
