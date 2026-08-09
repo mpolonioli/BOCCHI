@@ -25,18 +25,23 @@ public class Fate(FateId id, IFate context, IDataRepository<FateData> fateDataRe
 
     public byte Progress { get; private set; } = context.Progress;
 
-    /// <summary>Unix epoch seconds when this FATE started (Dalamud <see cref="IFate.StartTimeEpoch"/>).</summary>
-    public int StartTimeEpoch { get; private set; } = context.StartTimeEpoch;
-
     /// <summary>Seconds left on the FATE timer (Dalamud <see cref="IFate.TimeRemaining"/>).</summary>
     public long TimeRemainingSeconds { get; private set; } = context.TimeRemaining;
+
+    /// <summary>Unix epoch seconds of the FATE's real start (Dalamud <see cref="IFate.StartTimeEpoch"/>). 0 until the client publishes one.</summary>
+    public int StartTimeEpoch { get; private set; } = context.StartTimeEpoch;
+
+    /// <summary>Full FATE duration in seconds (Dalamud <see cref="IFate.Duration"/>).</summary>
+    public short DurationSeconds { get; private set; } = context.Duration;
+
+    /// <summary>The real spawn instant when the client published one, otherwise null.</summary>
+    public DateTimeOffset? StartedAt => StartTimeEpoch > 0 ? DateTimeOffset.FromUnixTimeSeconds(StartTimeEpoch) : null;
 
     public void Update(IFate context)
     {
         Position = context.Position;
         State = context.State;
         Progress = context.Progress;
-        StartTimeEpoch = context.StartTimeEpoch;
         TimeRemainingSeconds = context.TimeRemaining;
     }
 }
