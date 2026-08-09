@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using BOCCHI.Common.Config;
 using BOCCHI.Common.Data.Zones;
@@ -22,6 +23,13 @@ public class TreasureTracker : ITreasureTracker, IOnUpdate, IDisposable
     private const uint ActiveChestLogMessageId = 10965;
 
     private const uint NoActiveChestsLogMessageId = 10966;
+
+    /// <summary>
+    ///     Ceiling on a believable coffer count. Nothing in the game puts hundreds of coffers in a zone, so a reading
+    ///     above this is a line that slipped through rather than a count — and the numbers feed what the guided hunt
+    ///     deduces about how many coffers are still hidden.
+    /// </summary>
+    private const int MaxPlausibleCount = 500;
 
     private readonly IAddonLifecycle addonLifecycle;
     private readonly IChatGui chat;
@@ -225,7 +233,10 @@ public class TreasureTracker : ITreasureTracker, IOnUpdate, IDisposable
             return;
         }
 
-        AtkTextNode* textNode = addon->GetNodeById(3)->GetAsAtkTextNode();
+        // GetNodeById returns null when the banner has not built its nodes yet, and GetAsAtkTextNode would
+        // dereference it.
+        AtkResNode* node = addon->GetNodeById(3);
+        AtkTextNode* textNode = node == null ? null : node->GetAsAtkTextNode();
         if (textNode == null)
         {
             return;
@@ -252,14 +263,26 @@ public class TreasureTracker : ITreasureTracker, IOnUpdate, IDisposable
             return;
         }
 
-        if (!int.TryParse(match.Groups[1].Value, out int silver)
-            || !int.TryParse(match.Groups[2].Value, out int bronze))
+        if (!TryReadCount(match.Groups[1].Value, out int silver)
+            || !TryReadCount(match.Groups[2].Value, out int bronze))
         {
             return;
         }
 
         lastParseWideText = DateTime.Now;
         ApplySightCounts(silver, bronze);
+    }
+
+    /// <summary>
+    ///     Reads one scraped count, rejecting an implausible reading rather than letting it through.
+    ///     <para>
+    ///         <see cref="ApplySightCounts" /> clamps into range, which would quietly turn a misparsed 6000 into a
+    ///         confident 30. Refusing the reading keeps the last known good count instead.
+    ///     </para>
+    /// </summary>
+    private static bool TryReadCount(string value, out int count)
+    {
+        return int.TryParse(value, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out count) && count <= MaxPlausibleCount;
     }
 
     private void ApplySightCounts(int silver, int bronze)

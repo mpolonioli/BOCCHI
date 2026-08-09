@@ -2477,7 +2477,7 @@ public class TreasureHunterService
 
                     position = bakedUnload;
                 }
-                else if (position.Y <= -10f && !hasPositionData && !hasCrowdsourced)
+                else if (!TreasureLayout.IsInPlayableZone(position) && !hasPositionData && !hasCrowdsourced)
                 {
                     continue;
                 }

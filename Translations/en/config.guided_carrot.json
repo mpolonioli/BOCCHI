@@ -1,0 +1,46 @@
+{
+  "label": "Guided Carrot Hunt",
+  "tooltip": "The hand-run carrot hunt: the zone holds exactly one carrot at a time, so this points you at the spots it could be on and starts over the moment it moves. It never moves your character.",
+  "fields": {
+    "enabled": {
+      "label": "Enabled",
+      "tooltip": "Track carrot spawn points and offer the guided carrot hunt."
+    },
+    "observation_range": {
+      "label": "Observation range (yalms)",
+      "tooltip": "How close you have to get before a spawn point with no carrot on it is judged empty. Carrots you actually see are recorded from any distance. Carrots stream in later than coffers do, so setting this too high marks spots empty that simply had not loaded yet."
+    },
+    "auto_flag_next_target": {
+      "label": "Move the map flag automatically",
+      "tooltip": "Move the flag on to the next spot as soon as the current one resolves, so a lap can be run without reopening the window. Only one guided hunt steers the flag at a time."
+    },
+    "learn_unknown_spots": {
+      "label": "Learn spawn points not in the table",
+      "tooltip": "Track a carrot seen away from every known spot as a spawn point of its own for the rest of the session, and log its coordinates so the zone table can be corrected."
+    },
+    "draw_spot_markers": {
+      "label": "Draw spawn point markers",
+      "tooltip": "Draw the carrot spawn points in the world, so you can see where to go before anything is in render range."
+    },
+    "draw_line_to_target": {
+      "label": "Draw a line to the target",
+      "tooltip": "Draw a line from you to the current target spot."
+    },
+    "hide_markers_in_combat": {
+      "label": "Hide markers in combat",
+      "tooltip": "Stop drawing spawn point markers while you are in combat."
+    },
+    "hide_resolved_spots": {
+      "label": "Hide checked spots",
+      "tooltip": "Keep the table to what is left to check this sweep. Off by default, because watching a spot resolve is how you know the automatic check is working."
+    },
+    "hide_spots_above_my_level": {
+      "label": "Hide spots above my Knowledge Level",
+      "tooltip": "Drop spots ringed by mobs at or above your Knowledge Level from the table and from target selection. Those are the ones that will aggro on the way in."
+    },
+    "announce_in_chat": {
+      "label": "Announce in chat",
+      "tooltip": "Put sightings, pickups and sweep restarts in the chat log, so a lap can be run with the window closed."
+    }
+  }
+}
